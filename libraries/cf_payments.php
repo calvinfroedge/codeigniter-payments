@@ -46,7 +46,20 @@ class CF_Payments
 	 */
 	public function search_transactions($payment_module, $search_filters)
 	{
-	
+		$expected_datatypes = array(
+			'arrays'	=> array($search_filters)
+		);	
+		if ($this->_check_datatypes($expected_datatypes) === FALSE)
+		{
+			log_message('error', $this->_response_messages['invalid_input']);		
+			$response = (object) array('status' => 'failure', 'response_code' => $this->_response_codes['invalid_input'], 'response_message' => $this->_response_messages['invalid_input']);
+		}
+		
+		$this->_payment_type = 'search_transactions';
+		
+		$response = $this->_do_method($payment_module, $this->_payment_type, $search_filters);
+		
+		return $response;			
 	}
 	
 	/**
@@ -57,24 +70,20 @@ class CF_Payments
 	 * @param	array	Other data to submit with the request (such as data required for particular payment modules)
 	 * @return	object	Should return a success or failure, along with a response
 	 */
-	public function get_transaction_details($payment_module, $other_data)
+	public function get_transaction_details($payment_module, $params)
 	{
 		$expected_datatypes = array(
-			'arrays'	=> array($other_data)
+			'arrays'	=> array($identifying)
 		);	
 		if ($this->_check_datatypes($expected_datatypes) === FALSE)
 		{
 			log_message('error', $this->_response_messages['invalid_input']);		
 			$response = (object) array('status' => 'failure', 'response_code' => $this->_response_codes['invalid_input'], 'response_message' => $this->_response_messages['invalid_input']);
 		}
-
-		$payment_params = array(
-			'other_data'		=> $other_data
-		);
 		
 		$this->_payment_type = 'get_transaction_details';
 		
-		$response = $this->_do_method($payment_module, $this->_payment_type, $payment_params);
+		$response = $this->_do_method($payment_module, $this->_payment_type, $params);
 		
 		return $response;				
 	}
@@ -87,11 +96,11 @@ class CF_Payments
 	 * @param	array	Other data to submit with the request (such as data required for particular payment modules)
 	 * @return	object	Should return a success or failure, along with a response
 	 */	
-	public function authorize_payment($payment_module, $billing_data, $other_data = array())
+	public function authorize_payment($payment_module, $params)
 	{
 		$expected_datatypes = array(
 			'string'	=> $payment_module,
-			'arrays'	=> array($billing_data, $other_data)
+			'arrays'	=> array($params)
 		);
 		
 		if ($this->_check_datatypes($expected_datatypes) === FALSE)
@@ -102,12 +111,7 @@ class CF_Payments
 		
 		$this->_payment_type = 'authorize_payment';
 		
-		$payment_params = array(
-			'billing_data'		=> $billing_data,
-			'other_data'		=> $other_data
-		);
-		
-		$response = $this->_do_method($payment_module, $this->_payment_type, $payment_params);
+		$response = $this->_do_method($payment_module, $this->_payment_type, $params);
 		
 		return $response;	
 	}
@@ -121,11 +125,11 @@ class CF_Payments
 	 * @param	array	Other data to submit with the request (such as data required for particular payment modules)
 	 * @return	object	Should return a success or failure, along with a response
 	 */	
-	public function capture_payment($payment_module, $billing_data, $other_data)	
+	public function capture_payment($payment_module, $params)	
 	{
 		$expected_datatypes = array(
 			'string'	=> $payment_module,
-			'arrays'	=> array($other_data)
+			'arrays'	=> array($params)
 		);
 		
 		if ($this->_check_datatypes($expected_datatypes) === FALSE)
@@ -135,13 +139,8 @@ class CF_Payments
 		}
 		
 		$this->_payment_type = 'capture_payment';
-		
-		$payment_params = array(
-			'billing_data'		=> $billing_data,
-			'other_data'		=> $other_data,
-		);
-		
-		$response = $this->_do_method($payment_module, $this->_payment_type, $payment_params);
+
+		$response = $this->_do_method($payment_module, $this->_payment_type, $params);
 		
 		return $response;	
 	}
@@ -154,11 +153,11 @@ class CF_Payments
 	 * @param	array	Other data to submit with the request (such as data required for particular payment modules)
 	 * @return	object	Should return a success or failure, along with a response
 	 */			
-	public function oneoff_payment($payment_module, $billing_data, $other_data = array())
+	public function oneoff_payment($payment_module, $params)
 	{
 		$expected_datatypes = array(
 			'string'	=> $payment_module,
-			'arrays'	=> array($billing_data, $other_data)
+			'arrays'	=> array($params)
 		);
 		
 		if ($this->_check_datatypes($expected_datatypes) === FALSE)
@@ -169,12 +168,7 @@ class CF_Payments
 		
 		$this->_payment_type = 'oneoff_payment';
 		
-		$payment_params = array(
-			'billing_data'		=> $billing_data,
-			'other_data'		=> $other_data
-		);
-		
-		$response = $this->_do_method($payment_module, $this->_payment_type, $payment_params);
+		$response = $this->_do_method($payment_module, $this->_payment_type, $params);
 		
 		return $response;
 	}
@@ -186,10 +180,11 @@ class CF_Payments
 	 * @param	array	Identifying details for the transaction
 	 * @return	object	Should return a success or failure, along with a response
 	 */	
-	public function void_payment($payment_module, $other_data)
+	public function void_payment($payment_module, $params)
 	{
 		$expected_datatypes = array(
-			'arrays'	=> array($other_data)
+			'string'	=> $payment_module,		
+			'arrays'	=> array($params)
 		);
 		
 		if ($this->_check_datatypes($expected_datatypes) === FALSE)
@@ -200,11 +195,7 @@ class CF_Payments
 		
 		$this->_payment_type = 'void_payment';
 		
-		$payment_params = array(
-			'other_data'		=> $other_data
-		);
-		
-		$response = $this->_do_method($payment_module, $this->_payment_type, $payment_params);
+		$response = $this->_do_method($payment_module, $this->_payment_type, $params);
 		
 		return $response;	
 	}
@@ -215,10 +206,11 @@ class CF_Payments
 	 * @param	array	Identifying details for the transaction & action to perform
 	 * @return	object	Should return a success or failure, along with a response
 	*/	
-	public function change_transaction_status($payment_module, $other_data)
+	public function change_transaction_status($payment_module, $params)
 	{
 		$expected_datatypes = array(
-			'arrays'	=> array($other_data)
+			'string'	=> $payment_module,		
+			'arrays'	=> array($params)
 		);
 		
 		if ($this->_check_datatypes($expected_datatypes) === FALSE)
@@ -229,17 +221,9 @@ class CF_Payments
 		
 		$this->_payment_type = 'change_transaction_status';
 		
-		$payment_params = array(
-			'other_data'		=> $other_data
-		);
-		
-		$response = $this->_do_method($payment_module, $this->_payment_type, $payment_params);
+		$response = $this->_do_method($payment_module, $this->_payment_type, $params);
 		
 		return $response;	
-	}
-			
-	public function recurring_payment()
-	{
 	}
 
 	/**
@@ -249,10 +233,11 @@ class CF_Payments
 	 * @param	array	Params to submit to the payment module
 	 * @return	object	Should return a success or failure, along with a response
 	 */		
-	public function refund_payment($payment_module, $refund_data)
+	public function refund_payment($payment_module, $params)
 	{
 		$expected_datatypes = array(
-			'arrays'	=> array($refund_data)
+			'string'	=> $payment_module,		
+			'arrays'	=> array($params)
 		);
 		
 		if ($this->_check_datatypes($expected_datatypes) === FALSE)
@@ -263,13 +248,184 @@ class CF_Payments
 		
 		$this->_payment_type = 'refund_payment';
 		
-		$response = $this->_do_method($payment_module, $this->_payment_type, $refund_data);
+		$response = $this->_do_method($payment_module, $this->_payment_type, $params);
 		
 		return $response;			
 	}
-	
-	public function cancel_recurring()
+
+	/**
+	 * Create a recurring payment
+	 *
+	 * @param	string	The payment module to use
+	 * @param	array	Params to submit to the payment module
+	 * @return	object	Should return a success or failure, along with a response
+	 */	
+	public function recurring_payment($payment_module, $params)
 	{
+		$expected_datatypes = array(
+			'string'	=> $payment_module,		
+			'arrays'	=> array($params)
+		);
+		
+		if ($this->_check_datatypes($expected_datatypes) === FALSE)
+		{
+			log_message('error', $this->_response_messages['invalid_input']);		
+			$response = (object) array('status' => 'failure', 'response_code' => $this->_response_codes['invalid_input'], 'response_message' => $this->_response_messages['invalid_input']);
+		}
+		
+		$this->_payment_type = 'recurring_payment';
+		
+		$response = $this->_do_method($payment_module, $this->_payment_type, $params);
+		
+		return $response;	
+	}
+
+	/**
+	 * Get a recurring payment
+	 *
+	 * @param	string	The payment module to use
+	 * @param	array	Params to submit to the payment module
+	 * @return	object	Should return a success or failure, along with a response
+	 */	
+	public function get_recurring_profile($payment_module, $params)
+	{
+		$expected_datatypes = array(
+			'string'	=> $payment_module,		
+			'arrays'	=> array($params)
+		);
+
+		if ($this->_check_datatypes($expected_datatypes) === FALSE)
+		{
+			log_message('error', $this->_response_messages['invalid_input']);		
+			$response = (object) array('status' => 'failure', 'response_code' => $this->_response_codes['invalid_input'], 'response_message' => $this->_response_messages['invalid_input']);
+		}
+		
+		$this->_payment_type = 'get_recurring_profile';
+		
+		$response = $this->_do_method($payment_module, $this->_payment_type, $params);
+		
+		return $response;		
+	}
+
+	/**
+	 * Suspend a recurring profile.
+	 *
+	 * @param	string	The payment module to use
+	 * @param	array	Params to submit to the payment module
+	 * @return	object	Should return a success or failure, along with a response
+	 */	
+	public function suspend_recurring_profile($payment_module, $params)
+	{
+		$expected_datatypes = array(
+			'string'	=> $payment_module,		
+			'arrays'	=> array($params)
+		);
+
+		if ($this->_check_datatypes($expected_datatypes) === FALSE)
+		{
+			log_message('error', $this->_response_messages['invalid_input']);		
+			$response = (object) array('status' => 'failure', 'response_code' => $this->_response_codes['invalid_input'], 'response_message' => $this->_response_messages['invalid_input']);
+		}
+		
+		$this->_payment_type = 'suspend_recurring_profile';
+
+		$response = $this->_do_method($payment_module, $this->_payment_type, $params);
+		
+		return $response;	
+	}	
+
+	/**
+	 * Activate a recurring profile.
+	 *
+	 * @param	string	The payment module to use
+	 * @param	array	Params to submit to the payment module
+	 * @return	object	Should return a success or failure, along with a response
+	 */	
+	public function activate_recurring_profile($payment_module, $params)
+	{
+		$expected_datatypes = array(
+			'string'	=> $payment_module,		
+			'arrays'	=> array($params)
+		);
+
+		if ($this->_check_datatypes($expected_datatypes) === FALSE)
+		{
+			log_message('error', $this->_response_messages['invalid_input']);		
+			$response = (object) array('status' => 'failure', 'response_code' => $this->_response_codes['invalid_input'], 'response_message' => $this->_response_messages['invalid_input']);
+		}
+		
+		$this->_payment_type = 'activate_recurring_profile';
+
+		$response = $this->_do_method($payment_module, $this->_payment_type, $params);
+		
+		return $response;	
+	}
+
+	/**
+	 * Cancel a recurring profile.
+	 *
+	 * @param	string	The payment module to use
+	 * @param	array	Params to submit to the payment module
+	 * @return	object	Should return a success or failure, along with a response
+	 */	
+	public function cancel_recurring_profile($payment_module, $params)
+	{
+		$expected_datatypes = array(
+			'string'	=> $payment_module,		
+			'arrays'	=> array($params)
+		);
+
+		if ($this->_check_datatypes($expected_datatypes) === FALSE)
+		{
+			log_message('error', $this->_response_messages['invalid_input']);		
+			$response = (object) array('status' => 'failure', 'response_code' => $this->_response_codes['invalid_input'], 'response_message' => $this->_response_messages['invalid_input']);
+		}
+		
+		$this->_payment_type = 'cancel_recurring_profile';
+
+		$response = $this->_do_method($payment_module, $this->_payment_type, $params);
+		
+		return $response;		
+	}	
+	
+	public function recurring_bill_outstanding($payment_module, $params)
+	{
+		$expected_datatypes = array(
+			'string'	=> $payment_module,		
+			'arrays'	=> array($params)
+		);
+
+		if ($this->_check_datatypes($expected_datatypes) === FALSE)
+		{
+			log_message('error', $this->_response_messages['invalid_input']);		
+			$response = (object) array('status' => 'failure', 'response_code' => $this->_response_codes['invalid_input'], 'response_message' => $this->_response_messages['invalid_input']);
+		}
+		
+		$this->_payment_type = 'recurring_bill_outstanding';
+
+		$response = $this->_do_method($payment_module, $this->_payment_type, $params);
+		
+		return $response;		
+	}
+
+	public function update_recurring_profile($payment_module, $params)
+	{
+		$expected_datatypes = array(
+			'string'	=> $payment_module,		
+			'arrays'	=> array($params)
+		);
+
+		if ($this->_check_datatypes($expected_datatypes) === FALSE)
+		{
+			log_message('error', $this->_response_messages['invalid_input']);		
+			$response = (object) array('status' => 'failure', 'response_code' => $this->_response_codes['invalid_input'], 'response_message' => $this->_response_messages['invalid_input']);
+		}
+		
+		$this->_payment_type = 'update_recurring_profile';
+
+		$response = $this->_do_method($payment_module, $this->_payment_type, $params);
+		
+		return $response;	
 	}
 
 	/**
