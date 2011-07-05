@@ -50,7 +50,12 @@ class PayPal_PaymentsPro extends CF_Payments
 	/**
 	 * The final string to be sent in the http query
 	*/	
-	private $_http_query;		
+	private $_http_query;	
+	
+	/**
+	 * The default params for this api
+	*/	
+	private	$_default_params;
 
 	/**
 	 * Constructor method
@@ -59,6 +64,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	{
 		parent::__construct();	
 		$this->_ci->load->config('payment_modules/paypal_paymentspro');
+		$this->_default_params = $this->_ci->config->item('method_params');
 		$this->_api_endpoint = $this->_ci->config->item('paypal_api_endpoint');		
 		$this->_api_settings = array(
 			'USER'	=> $this->_ci->config->item('paypal_api_username'),
@@ -66,11 +72,6 @@ class PayPal_PaymentsPro extends CF_Payments
 			'VERSION' => $this->_ci->config->item('paypal_api_version'),
 			'SIGNATURE'	=> $this->_ci->config->item('paypal_api_signature'),		
 		);
-	}
-
-	public function test_call($test)
-	{
-		return $test;
 	}
 	
 	/**
@@ -84,8 +85,8 @@ class PayPal_PaymentsPro extends CF_Payments
 	{
 		$this->_api_method = array('METHOD' => 'TransactionSearch');
 		$this->_api_settings = array_merge($this->_api_method, $this->_api_settings);
-		$this->_api_settings = array_merge($this->_api_settings, $this->_ci->config->item('paypal_direct_payment'));	
-		
+	
+
 		$this->_request = array(
 			'STARTDATE'			=>	$params['start_date'], //Required.  Earliest transaction at which to start the search.  No wildcards.  Value must be UTC / GMT format.
 			'ENDDATE'			=>	$params['end_date'], //Optional.  Latest transaction to be included.
@@ -119,7 +120,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	{
 		$this->_api_method = array('METHOD' => 'GetTransactionDetails');
 		$this->_api_settings = array_merge($this->_api_method, $this->_api_settings);
-		$this->_api_settings = array_merge($this->_api_settings, $this->_ci->config->item('paypal_direct_payment'));	
+	
 		
 		$this->_request = array(
 			'TRANSACTIONID'	=>	$params['transaction_data']['identifier']
@@ -137,7 +138,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	{
 		$this->_api_method = array('METHOD' => 'DoDirectPayment');
 		$this->_api_settings = array_merge($this->_api_method, $this->_api_settings);
-		$this->_api_settings = array_merge($this->_api_settings, $this->_ci->config->item('paypal_direct_payment'));
+
 		
 		$this->_build_oneoff_request($params, 'Authorization');
 				
@@ -153,7 +154,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	{
 		$this->_api_method = array('METHOD' => 'DoDirectPayment');
 		$this->_api_settings = array_merge($this->_api_method, $this->_api_settings);
-		$this->_api_settings = array_merge($this->_api_settings, $this->_ci->config->item('paypal_direct_payment'));
+
 		
 		($params['transaction_data']['final'] == TRUE)
 		? $final = 'Complete'
@@ -183,7 +184,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	{
 		$this->_api_method = array('METHOD' => 'DoVoid');
 		$this->_api_settings = array_merge($this->_api_method, $this->_api_settings);
-		$this->_api_settings = array_merge($this->_api_settings, $this->_ci->config->item('paypal_direct_payment'));
+
 		
 		$this->_request = array(
 			'AUTHORIZATIONID'	=>	$params['transaction_data']['identifier'],
@@ -202,7 +203,8 @@ class PayPal_PaymentsPro extends CF_Payments
 	{
 		$this->_api_method = array('METHOD' => 'DoDirectPayment');
 		$this->_api_settings = array_merge($this->_api_method, $this->_api_settings);
-		$this->_api_settings = array_merge($this->_api_settings, $this->_ci->config->item('paypal_direct_payment'));
+		
+		$params = array_merge($this->_default_params['oneoff_payment'], $params);
 		
 		$this->_build_oneoff_request($params, 'Sale');
 				
@@ -218,7 +220,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	{
 		$this->_api_method = array('METHOD' => 'ManagePendingTransactionStatus');
 		$this->_api_settings = array_merge($this->_api_method, $this->_api_settings);
-		$this->_api_settings = array_merge($this->_api_settings, $this->_ci->config->item('paypal_direct_payment'));	
+	
 		
 		$this->_request = array(
 			'TRANSACTIONID'	=>	$params['transaction_data']['identifier'],
@@ -237,7 +239,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	{
 		$this->_api_method = array('METHOD' => 'RefundTransaction');
 		$this->_api_settings = array_merge($this->_api_method, $this->_api_settings);
-		$this->_api_settings = array_merge($this->_api_settings, $this->_ci->config->item('paypal_direct_payment'));	
+	
 		
 		$this->_request = array(
 			'TRANSACTIONID'	=>	$params['identifier'],	//Required.  Should have been returned by previous transaction.
@@ -258,7 +260,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	 * @return	void
 	*/	
 	private function _build_oneoff_request($params, $payment_action)
-	{
+	{	
 		$payment_array = array(
 			'PAYMENTACTION'		=>	$payment_action,
 			'IPADDRESS'			=>	$params['ip_address'],
@@ -304,7 +306,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	{
 		$this->_api_method = array('METHOD'	=> 'GetRecurringPaymentsProfileDetails');
 		$this->_api_settings = array_merge($this->_api_method, $this->_api_settings);
-		$this->_api_settings = array_merge($this->_api_settings, $this->_ci->config->item('paypal_direct_payment'));
+
 		
 		$this->_request = array(
 			'PROFILEID'	=>	$params['identifier']
@@ -325,7 +327,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	{
 		$this->_api_method = array('METHOD' => 'CreateRecurringPaymentsProfile');
 		$this->_api_settings = array_merge($this->_api_method, $this->_api_settings);
-		$this->_api_settings = array_merge($this->_api_settings, $this->_ci->config->item('paypal_direct_payment'));
+
 			
 
 		$this->_request = array(
@@ -400,7 +402,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	{
 		$this->_api_method = array('METHOD'	=> 'ManageRecurringPaymentsProfileStatus');
 		$this->_api_settings = array_merge($this->_api_method, $this->_api_settings);
-		$this->_api_settings = array_merge($this->_api_settings, $this->_ci->config->item('paypal_direct_payment'));
+
 		
 		$this->_request = array(
 			'PROFILEID'	=>	$params['identifier'],
@@ -421,7 +423,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	{
 		$this->_api_method = array('METHOD'	=> 'ManageRecurringPaymentsProfileStatus');
 		$this->_api_settings = array_merge($this->_api_method, $this->_api_settings);
-		$this->_api_settings = array_merge($this->_api_settings, $this->_ci->config->item('paypal_direct_payment'));
+
 		
 		$this->_request = array(
 			'PROFILEID'	=>	$params['identifier'],
@@ -442,7 +444,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	{
 		$this->_api_method = array('METHOD'	=> 'ManageRecurringPaymentsProfileStatus');
 		$this->_api_settings = array_merge($this->_api_method, $this->_api_settings);
-		$this->_api_settings = array_merge($this->_api_settings, $this->_ci->config->item('paypal_direct_payment'));
+
 		
 		$this->_request = array(
 			'PROFILEID'	=>	$params['identifier'],
@@ -463,7 +465,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	{
 		$this->_api_method = array('METHOD'	=> 'BillOutstandingAmount');
 		$this->_api_settings = array_merge($this->_api_method, $this->_api_settings);
-		$this->_api_settings = array_merge($this->_api_settings, $this->_ci->config->item('paypal_direct_payment'));
+
 		
 		$this->_request = array(
 			'PROFILEID'	=>	$params['identifier'],
@@ -484,7 +486,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	{
 		$this->_api_method = array('METHOD'	=> 'UpdateRecurringPaymentsProfile');
 		$this->_api_settings = array_merge($this->_api_method, $this->_api_settings);
-		$this->_api_settings = array_merge($this->_api_settings, $this->_ci->config->item('paypal_direct_payment'));
+
 		
 		$this->_request = array(
 			'PROFILEID'					=>	$params['identifier'],
