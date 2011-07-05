@@ -9,37 +9,209 @@ $config['paypal_api_version'] = "66.0";
 //Default Method Params.  You can override these when you call any method.  
 
 $config['method_params'] = 
-array(
-	'oneoff_payment' =>	array
+	array
 	(
-		'ip_address'		=>	'',	//REQUIRED.  IP address of purchaser
-		'cc_type'			=>	'',	//REQUIRED.  Visa, MasterCard, Discover, Amex
-		'cc_number'			=>	'', //REQUIRED.  Credit card number
-		'cc_exp'			=>	'', //REQUIRED.  Must be formatted MMYYYY
-		'cc_code'			=>	'', //RREQUIRED.  3 or 4 digit cvv code
-		'email'				=>	'', //REQUIRED.  email associated with account being billed
-		'first_name'		=>	'', //first name of the purchaser
-		'last_name'			=>	'', //last name of the purchaser
-		'street'			=>	'', //REQUIRED.  street address of the purchaser
-		'street2'			=>	'', //street address 2 of purchaser
-		'city'				=>	'', //REQUIRED.  city of the purchaser
-		'state'				=>	'', //REQUIRED.  state of the purchaser
-		'countrycode'		=>	'', //REQUIRED.  country of the purchaser
-		'zip'				=>	'', //REQUIRED.  zip code of the purchaser
-		'amt'				=>	'', //REQUIRED.  purchase amount
-		'ship_to_phone_num'	=>	'', //phone num of customer shipped to
-		'currency_code'		=>	'', //currency code to use for the transaction.
-		'item_amt'			=>	'', //Amount for just the item being purchased.
-		'shipping_amt'		=>	'', //Amount for just shipping.
-		'insurance_amt'		=>	'', //Amount for just insurance.
-		'shipping_disc_amt'	=>	'', //Amount for just shipping.
-		'handling_amt'		=>	'', //Amount for just handling.
-		'tax_amt'			=>	'', //Amount for just tax.
-		'desc'				=>	'', //Description for the transaction
-		'custom'			=>	'', //Free form text field
-		'inv_num'			=>	'', //Invoice number
-		'button_source'		=>	'', //An identification code for use by third-party applications to identify transactions.  Character length and limitations: 32 single-byte alphanumeric characters
-		'notify_url'		=>	''	//Your URL for receiving Instant Payment Notification (IPN) about this transaction. If you do not specify this value in the request, the notification URL from your Merchant Profile is used, if one exists.
-
-	),
-);
+	'oneoff_payment' =>	array
+		(
+			'ip_address'		=>	'',	//REQUIRED.  IP address of purchaser
+			'cc_type'			=>	'',	//REQUIRED.  Visa, MasterCard, Discover, Amex
+			'cc_number'			=>	'', //REQUIRED.  Credit card number
+			'cc_exp'			=>	'', //REQUIRED.  Must be formatted MMYYYY
+			'cc_code'			=>	'', //RREQUIRED.  3 or 4 digit cvv code
+			'email'				=>	'', //REQUIRED.  email associated with account being billed
+			'first_name'		=>	'', //first name of the purchaser
+			'last_name'			=>	'', //last name of the purchaser
+			'street'			=>	'', //REQUIRED.  street address of the purchaser
+			'street2'			=>	'', //street address 2 of purchaser
+			'city'				=>	'', //REQUIRED.  city of the purchaser
+			'state'				=>	'', //REQUIRED.  state of the purchaser
+			'countrycode'		=>	'', //REQUIRED.  country of the purchaser
+			'zip'				=>	'', //REQUIRED.  zip code of the purchaser
+			'amt'				=>	'', //REQUIRED.  purchase amount
+			'ship_to_phone_num'	=>	'', //phone num of customer shipped to
+			'currency_code'		=>	'', //currency code to use for the transaction.
+			'item_amt'			=>	'', //Amount for just the item being purchased.
+			'shipping_amt'		=>	'', //Amount for just shipping.
+			'insurance_amt'		=>	'', //Amount for just insurance.
+			'shipping_disc_amt'	=>	'', //Amount for just shipping.
+			'handling_amt'		=>	'', //Amount for just handling.
+			'tax_amt'			=>	'', //Amount for just tax.
+			'desc'				=>	'', //Description for the transaction
+			'custom'			=>	'', //Free form text field
+			'inv_num'			=>	'', //Invoice number
+			'button_source'		=>	'', //An identification code for use by third-party applications to identify transactions.  Character length and limitations: 32 single-byte alphanumeric characters
+			'notify_url'		=>	''	//Your URL for receiving Instant Payment Notification (IPN) about this transaction. If you do not specify this value in the request, the notification URL from your Merchant Profile is used, if one exists.
+		),
+	'capture_payment' => array
+		(
+			'identifier'			=>	'',  //Required. Unique identifier for the transaction, generated from a previous authorization.
+			'amt'					=>	'', 
+			'final'					=>	'',	//Whether or not this is the final charge.
+			'inv_num'				=>	'',	//Matches some invoice in your own system.
+			'note'					=>	'',
+			'cc_statement_descrip'	=>	'',
+			'cc_type'				=>	'',	//REQUIRED.  Visa, MasterCard, Discover, Amex
+			'cc_number'				=>	'', //REQUIRED.  Credit card number
+			'cc_exp'				=>	'', //REQUIRED.  Must be formatted MMYYYY
+		),
+	'void_payment' => array
+		(
+			'identifier'			=>	'',	//Required. Unique identifier for the transaction, generated from a previous authorization.
+			'note'					=>	'' //An optional note to be submitted along with the request.
+		),
+	'get_transaction_details' => array
+		(
+			'identifier'			=>	'' //Required. Unique identifier for the transaction, generated from a previous transaction.
+		),
+	'change_transaction_status' => array
+		(
+			'identifier'			=>	'',  //Required. Unique identifier for the transaction, generated from a previous transaction.
+			'action'				=>	''  //Required.  Should be Accept or Deny.
+		),	
+	'refund_payment'	=> array
+		(
+			'identifier'			=>	'', //A unique identifier for the transaction
+			'inv_num'				=>	'',
+			'refund_type'			=>	'', //Can be Full or Partial
+			'amt'					=>	'',  //Do not set amount if refund type is Full
+			'currency_code'			=>	'',
+			'note'					=>	''			
+		),	
+	'search_transactions'	=> array
+		(
+			'start_date'			=>	'2011-07-02T00:24:59+00:00',	//REQUIRED.  Date to search from.
+			'end_date'				=>	'',	//Date to search to
+			'email'					=>	'',	//Email used by purchaser
+			'receiver'				=>	'',	//Identifier of receiver
+			'receipt_id'			=>	'',	//Receipt id (generated by gateway)
+			'transaction_id'		=>	'',	//Transaction id (generated by gateway)
+			'inv_num'				=>	'',	//Invoice number (generated by you, must match what's in gateway)
+			'cc_number'				=>	'',	//The credit card number to use
+			'auction_item_number'	=>	'',	//The auction item number to use
+			'transaction_class'		=>	'',	//The transaction class (Method of original API query)
+			'amt'					=>	'',	//Transactions of amount..
+			'currency_code'			=>	'',	//Transactions with currency code..
+			'status'				=>	'',	//Transactions with status
+			'salutation'			=>	'',	//The buyer's salutation
+			'first_name'			=>	'',	//The buyer's first name
+			'middle_name'			=>	'',	//The buyer's middle name
+			'last_name'				=>	'',	//The buyer's last name
+			'suffix'				=>	''	//The buyer's suffix		
+		),	
+	'recurring_payment'		=> array
+		(
+			'subscriber_name'			=>	'', //Subscriber's name.
+			'profile_start_date'		=>	'', //Required.  The subscription start date.
+			'profile_reference'			=>	'', //A reference from your own subscription / invoicing system for the subscriber.
+			'desc'						=>	'',	//Required.  A description for the recurring bill.
+			'max_failed_payments'		=>	'', //Maximum # of failed payments before subscription is cancelled
+			'auto_bill_amt'				=>	'', // ?
+			'billing_period'			=>	'', //Required.  Year, month, week
+			'billing_frequency'			=>	'',	//Required.  Number of times to bill per period
+			'total_billing_cycles'		=>	'', //Total # of times the customer will be billed.
+			'amt'						=>	'',	//Required.  Amount to bill on a recurring basis.
+			'trial_billing_frequency'	=>	'', //Set this if you want a trial.  Year, month, week.
+			'trial_billing_cycles'		=>	'', //Total # of times you want the customer to be billed at the trial rate.
+			'trial_amt'					=>	'',	//The trial rate.
+			'currency_code'				=>	'', //ie USD
+			'shipping_amt'				=>	'', //Total of shipping alone.
+			'tax_amt'					=>	'', //Total of tax alone.
+			'initial_amt'				=>	'',	//billed immediately upon profile creation
+			'failed_init_action'		=>	'',	//What to do if the initial bill failes.  Continue or Cancel.
+			'ship_to_name'				=>	'', //Name of person being shipped to
+			'ship_to_street'			=>	'',
+			'ship_to_street2'			=>	'',
+			'ship_to_city'				=>	'',
+			'ship_to_state'				=>	'',
+			'ship_to_zip'				=>	'',
+			'ship_to_country'			=>	'',
+			'ship_to_phone_num'			=>	'',
+			'cc_type'					=>	'',	//Required.  Credit card type.
+			'cc_number'					=>	'',	//Required.  Credit card number.
+			'exp_date'					=>	'',	//Required.  Credit card expiration date.
+			'cc_code'					=>	'',	//Required.  Credit Card CVV code.
+			'start_date'				=>	'',	
+			'issue_number'				=>	'',
+			'email'						=>	'',
+			'identifier'				=>	'',
+			'payer_status'				=>	'',
+			'country_code'				=>	'',	//Required.  Buyer's country code.
+			'business_name'				=>	'',
+			'salutation'				=>	'',
+			'first_name'				=>	'',
+			'middle_name'				=>	'',
+			'last_name'					=>	'',
+			'suffix'					=>	'',
+			'street'					=>	'',  //Required.  Buyer's street address.
+			'street2'					=>	'',
+			'city'						=>	'',	//Required.  Buyer's city.
+			'state'						=>	'',	//Required.  Buyer's state or province.
+			'postal_code'				=>	'',	//Required.  Buyer's postal code.
+			'ship_to_phone_num'			=>	'',		
+		),
+	'get_recurring_profile' => array(
+			'identifier'	=>	'', //Required.  Should have been returned when you created the profile.
+		),
+	'suspend_recurring_profile' => array(
+			'identifier'	=>	'', //Required.  Should have been returned when you created the profile.
+			'note'			=>	'', //This is just a note.
+		),
+	'activate_recurring_profile' => array(
+			'identifier'	=>	'', //Required.  Should have been returned when you created the profile.
+			'note'			=>	'', //This is just a note.
+		),
+	'cancel_recurring_profile' => array(
+			'identifier'	=>	'', //Required.  Should have been returned when you created the profile.
+			'note'			=>	'', //This is just a note.
+		),
+	'recurring_bill_outstanding' => array(
+			'identifier'	=> '', //Required.  Should have been returned when you created the profile.
+			'amt'			=>	'', //The outstanding amount to bil.  Cannot exceed total owed.
+			'note'			=> '' //This is just a note.
+		)
+	'update_recurring_profile'	=> array(
+			'identifier'				=>	'',	//Required.
+			'note'						=>	'',	
+			'subscriber_name'			=>	'',
+			'profile_reference'			=>	'',
+			'additional_billing_cycles'	=>	'',
+			'desc'						=>	'',	
+			'max_failed_payments'		=>	'',
+			'auto_bill_amt'				=>	'',
+			'profile_start_date'		=>	'',  //The subscription start date.			
+			'billing_period'			=>	'', //Required.  Year, month, week
+			'billing_frequency'			=>	'',	//Required.  Number of times to bill per period
+			'total_billing_cycles'		=>	'',
+			'amt'						=>	'',	//Required.  Amount to bill
+			'trial_billing_cycles'		=>	'',
+			'trial_amt'					=>	'',						
+			'currency_code'				=>	'',
+			'shipping_amt'				=>	'',
+			'tax_amt'					=>	'',
+			'outstanding_amt'			=>	'',
+			'failed_init_action'		=>	'',	//What to do if the initial bill failes.  Continue or Cancel.
+			'ship_to_name'				=>	'',
+			'ship_to_street'			=>	'',
+			'ship_to_street2'			=>	'',
+			'ship_to_city'				=>	'',
+			'ship_to_state'				=>	'',
+			'ship_to_zip'				=>	'',
+			'ship_to_country'			=>	'',
+			'cc_type'					=>	'',	//Required.  Credit card type.
+			'cc_number'					=>	'',	//Required.  Credit card number.
+			'exp_date'					=>	'',	//Required.  Credit card expiration date.
+			'cc_code'					=>	'',	//Required.  Credit Card CVV code.
+			'start_date'				=>	'',	
+			'issue_number'				=>	'',
+			'email'						=>	'',
+			'first_name'				=>	'',
+			'last_name'					=>	'',
+			'street'					=>	'',  //Required.  Buyer's street address.
+			'street2'					=>	'',
+			'city'						=>	'',	//Required.  Buyer's city.
+			'state'						=>	'',	//Required.  Buyer's state or province.
+			'country_code'				=>	'',
+			'postal_code'				=>	'',	//Required.  Buyer's postal code.
+			'ship_to_phone_num'			=>	'',	
+		)							
+	);
