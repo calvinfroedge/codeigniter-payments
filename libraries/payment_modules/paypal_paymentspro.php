@@ -51,11 +51,6 @@ class PayPal_PaymentsPro extends CF_Payments
 	 * The final string to be sent in the http query
 	*/	
 	private $_http_query;	
-	
-	/**
-	 * The default params for this api
-	*/	
-	private	$_default_params;
 
 	/**
 	 * Constructor method
@@ -64,7 +59,6 @@ class PayPal_PaymentsPro extends CF_Payments
 	{
 		parent::__construct();	
 		$this->_ci->load->config('payment_modules/paypal_paymentspro');
-		$this->_default_params = $this->_ci->config->item('method_params');
 		$this->_api_endpoint = $this->_ci->config->item('paypal_api_endpoint');		
 		$this->_api_settings = array(
 			'USER'	=> $this->_ci->config->item('paypal_api_username'),
@@ -82,8 +76,6 @@ class PayPal_PaymentsPro extends CF_Payments
 	public function oneoff_payment($params)
 	{
 		$this->_api_method = array('METHOD' => 'DoDirectPayment');
-		$this->_api_settings = array_merge($this->_api_method, $this->_api_settings);
-		$params = array_merge($this->_default_params['oneoff_payment'], $params);
 		$this->_build_oneoff_request($params, 'Sale');	
 		return $this->_handle_query();
 	}
@@ -96,8 +88,6 @@ class PayPal_PaymentsPro extends CF_Payments
 	public function authorize_payment($params)
 	{
 		$this->_api_method = array('METHOD' => 'DoDirectPayment');
-		$this->_api_settings = array_merge($this->_api_method, $this->_api_settings);
-		$params = array_merge($this->_default_params['oneoff_payment'], $params);
 		$this->_build_oneoff_request($params, 'Authorization');		
 		return $this->_handle_query();	
 	}
@@ -110,8 +100,6 @@ class PayPal_PaymentsPro extends CF_Payments
 	public function capture_payment($params)
 	{
 		$this->_api_method = array('METHOD' => 'DoDirectPayment');
-		$this->_api_settings = array_merge($this->_api_method, $this->_api_settings);
-		$params = array_merge($this->_default_params['capture_payment'], $params);
 
 		($params['final'] == TRUE)
 		? $final = 'Complete'
@@ -140,8 +128,6 @@ class PayPal_PaymentsPro extends CF_Payments
 	public function void_payment($params)
 	{
 		$this->_api_method = array('METHOD' => 'DoVoid');
-		$this->_api_settings = array_merge($this->_api_method, $this->_api_settings);
-		$params = array_merge($this->_default_params['void_payment'], $params);
 		
 		$this->_request = array(
 			'AUTHORIZATIONID'	=>	$params['identifier'],
@@ -159,8 +145,6 @@ class PayPal_PaymentsPro extends CF_Payments
 	public function change_transaction_status($params)
 	{
 		$this->_api_method = array('METHOD' => 'ManagePendingTransactionStatus');
-		$this->_api_settings = array_merge($this->_api_method, $this->_api_settings);
-		$params = array_merge($this->_default_params['change_transaction_status'], $params);
 		
 		$this->_request = array(
 			'TRANSACTIONID'	=>	$params['identifier'],
@@ -178,8 +162,6 @@ class PayPal_PaymentsPro extends CF_Payments
 	public function refund_payment($params)
 	{
 		$this->_api_method = array('METHOD' => 'RefundTransaction');
-		$this->_api_settings = array_merge($this->_api_method, $this->_api_settings);
-		$params = array_merge($this->_default_params['refund_payment'], $params);	
 		
 		$this->_request = array(
 			'TRANSACTIONID'	=>	$params['identifier'],	//Required.  Should have been returned by previous transaction.
@@ -216,9 +198,9 @@ class PayPal_PaymentsPro extends CF_Payments
 			'CITY'				=> 	$params['city'],
 			'STATE'				=> 	$params['state'],
 			'COUNTRYCODE'		=> 	$params['countrycode'],
-			'ZIP'				=> 	$params['zip'],
+			'ZIP'				=> 	$params['postal_code'],
 			'AMT'				=> 	$params['amt'],
-			'SHIPTOPHONENUM'	=> 	$params['ship_to_phone_num'],
+			'SHIPTOPHONENUM'	=> 	$params['phone'],
 			'CURRENCYCODE'		=> 	$params['currency_code'],
 			'ITEMAMT'			=> 	$params['item_amt'],
 			'SHIPPINGAMT'		=> 	$params['shipping_amt'],
@@ -229,8 +211,14 @@ class PayPal_PaymentsPro extends CF_Payments
 			'DESC'				=> 	$params['desc'],
 			'CUSTOM'			=> 	$params['custom'],
 			'INVNUM'			=> 	$params['inv_num'],
-			'BUTTONSOURCE'		=> 	$params['button_source'],
-			'NOTIFYURL'			=> 	$params['notify_url']		
+			'NOTIFYURL'			=> 	$params['notify_url'],
+			'SHIPTONAME'		=>	$params['ship_to_first_name'].' '.$params['ship_to_last_name'],
+			'SHIPTOSTREET'		=>	$params['ship_to_street'],
+			'SHIPTOCITY'		=>	$params['ship_to_city'],
+			'SHIPTOSTATE'		=>	$params['ship_to_state'],
+			'SHIPTOZIP'			=>	$params['ship_to_zip'],
+			'SHIPTOCOUNTRY'		=>	$params['ship_to_country'],	
+			'SHIPTOPHONENUM'	=>	$params['phone'],	
 		);
 		
 		$this->_request = $payment_array;
@@ -244,8 +232,6 @@ class PayPal_PaymentsPro extends CF_Payments
 	public function get_transaction_details($params)
 	{
 		$this->_api_method = array('METHOD' => 'GetTransactionDetails');
-		$this->_api_settings = array_merge($this->_api_method, $this->_api_settings);
-		$params = array_merge($this->_default_params['get_transaction_details'], $params);	
 		
 		$this->_request = array(
 			'TRANSACTIONID'	=>	$params['identifier']
@@ -264,8 +250,6 @@ class PayPal_PaymentsPro extends CF_Payments
 	public function search_transactions($params)
 	{
 		$this->_api_method = array('METHOD' => 'TransactionSearch');
-		$this->_api_settings = array_merge($this->_api_method, $this->_api_settings);
-		$params = array_merge($this->_default_params['search_transactions'], $params);
 			
 		$this->_request = array(
 			'STARTDATE'			=>	$params['start_date'],   
@@ -302,11 +286,9 @@ class PayPal_PaymentsPro extends CF_Payments
 	public function recurring_payment($params)
 	{
 		$this->_api_method = array('METHOD' => 'CreateRecurringPaymentsProfile');
-		$this->_api_settings = array_merge($this->_api_method, $this->_api_settings);
-		$params = array_merge($this->_default_params['recurring_payment'], $params);
 			
 		$this->_request = array(
-			'SUBSCRIBERNAME'		=>	$params['subscriber_name'],
+			'SUBSCRIBERNAME'		=>	$params['first_name'].' '.$params['last_name'],
 			'PROFILESTARTDATE'		=>	$params['profile_start_date'],
 			'PROFILEREFERENCE'		=>	$params['profile_reference'],
 			'DESC'					=>	$params['desc'],
@@ -321,14 +303,14 @@ class PayPal_PaymentsPro extends CF_Payments
 			'TAXAMT'				=>	$params['tax_amt'],	
 			'INITAMT'				=>	$params['initial_amt'],
 			'FAILEDINITAMTACTION'	=>	$params['failed_init_action'],
-			'SHIPTONAME'			=>	$params['ship_to_name'],
+			'SHIPTONAME'			=>	$params['ship_to_first_name'].' '.$params['ship_to_last_name'],
 			'SHIPTOSTREET'			=>	$params['ship_to_street'],
 			'SHIPTOSTREET2'			=>	$params['ship_to_street2'],
 			'SHIPTOCITY'			=>	$params['ship_to_city'],
 			'SHIPTOSTATE'			=>	$params['ship_to_state'],
 			'SHIPTOZIP'				=>	$params['ship_to_zip'],
 			'SHIPTOCOUNTRY'			=>	$params['ship_to_country'],
-			'SHIPTOPHONENUM'		=>	$params['ship_to_phone_num'],
+			'SHIPTOPHONENUM'		=>	$params['phone'],
 			'TRIALBILLINGPERIOD'	=>	$params['trial_billing_cycles'],
 			'TRIALBILLINGFREQUENCY'	=>	$params['trial_billing_frequency'],
 			'TRIALAMT'				=>	$params['trial_amt'],									
@@ -353,7 +335,7 @@ class PayPal_PaymentsPro extends CF_Payments
 			'CITY'					=>	$params['city'],
 			'STATE'					=>	$params['state'],
 			'ZIP'					=>	$params['postal_code'],
-			'SHIPTOPHONENUM'		=>	$params['ship_to_phone_num']
+			'SHIPTOPHONENUM'		=>	$params['phone']
 		);		
 
 		return $this->_handle_query();
@@ -368,8 +350,6 @@ class PayPal_PaymentsPro extends CF_Payments
 	public function get_recurring_profile($params)
 	{
 		$this->_api_method = array('METHOD'	=> 'GetRecurringPaymentsProfileDetails');
-		$this->_api_settings = array_merge($this->_api_method, $this->_api_settings);
-		$params = array_merge($this->_default_params['get_recurring_profile'], $params);
 		
 		$this->_request = array(
 			'PROFILEID'	=>	$params['identifier']
@@ -387,8 +367,6 @@ class PayPal_PaymentsPro extends CF_Payments
 	public function suspend_recurring_profile($params)
 	{
 		$this->_api_method = array('METHOD'	=> 'ManageRecurringPaymentsProfileStatus');
-		$this->_api_settings = array_merge($this->_api_method, $this->_api_settings);
-		$params = array_merge($this->_default_params['suspend_recurring_profile'], $params);
 		
 		$this->_request = array(
 			'PROFILEID'	=>	$params['identifier'],
@@ -408,8 +386,6 @@ class PayPal_PaymentsPro extends CF_Payments
 	public function activate_recurring_profile($params)
 	{
 		$this->_api_method = array('METHOD'	=> 'ManageRecurringPaymentsProfileStatus');
-		$this->_api_settings = array_merge($this->_api_method, $this->_api_settings);
-		$params = array_merge($this->_default_params['activate_recurring_profile'], $params);
 		
 		$this->_request = array(
 			'PROFILEID'	=>	$params['identifier'],
@@ -429,8 +405,6 @@ class PayPal_PaymentsPro extends CF_Payments
 	public function cancel_recurring_profile($params)
 	{
 		$this->_api_method = array('METHOD'	=> 'ManageRecurringPaymentsProfileStatus');
-		$this->_api_settings = array_merge($this->_api_method, $this->_api_settings);
-		$params = array_merge($this->_default_params['cancel_recurring_profile'], $params);
 		
 		$this->_request = array(
 			'PROFILEID'	=>	$params['identifier'],
@@ -450,8 +424,6 @@ class PayPal_PaymentsPro extends CF_Payments
 	public function recurring_bill_outstanding($params)
 	{
 		$this->_api_method = array('METHOD'	=> 'BillOutstandingAmount');
-		$this->_api_settings = array_merge($this->_api_method, $this->_api_settings);
-		$params = array_merge($this->_default_params['recurring_bill_outstanding'], $params);
 		
 		$this->_request = array(
 			'PROFILEID'	=>	$params['identifier'],
@@ -471,9 +443,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	public function update_recurring_profile($params)
 	{
 		$this->_api_method = array('METHOD'	=> 'UpdateRecurringPaymentsProfile');
-		$this->_api_settings = array_merge($this->_api_method, $this->_api_settings);
-
-		
+	
 		$this->_request = array(
 			'PROFILEID'					=>	$params['identifier'],
 			'NOTE'						=>	$params['note'],
@@ -488,14 +458,14 @@ class PayPal_PaymentsPro extends CF_Payments
 			'AUTOBILLOUTAMT'			=>	$params['auto_bill_amt'],
 			'MAXFAILEDPAYMENTS'			=>	$params['max_failed_payments'],
 			'PROFILESTARTDATE'			=>	$params['profile_start_date'],
-			'SHIPTONAME'				=>	$params['ship_to_name'],
+			'SHIPTONAME'				=>	$params['ship_to_first_name'].' '.$params['ship_to_last_name'],
 			'SHIPTOSTREET'				=>	$params['ship_to_street'],
 			'SHIPTOSTREET2'				=>	$params['ship_to_street2'],
 			'SHIPTOCITY'				=>	$params['ship_to_city'],
 			'SHIPTOSTATE'				=>	$params['ship_to_state'],
 			'SHIPTOZIP'					=>	$params['ship_to_zip'],
 			'SHIPTOCOUNTRY'				=>	$params['ship_to_country'],	
-			'SHIPTOPHONENUM'			=>	$params['ship_to_phone_num'],	
+			'SHIPTOPHONENUM'			=>	$params['phone'],	
 			'TOTALBILLINGCYCLES'		=>	$params['total_billing_cycles'],	
 			'CURRENCYCODE'				=>	$params['currency_code'],	
 			'SHIPPINGAMT'				=>	$params['shipping_amt'],	
@@ -540,76 +510,16 @@ class PayPal_PaymentsPro extends CF_Payments
 	 */		
 	private function _handle_query()
 	{
-		$this->_request = $this->filter_values($this->_request);
-		$this->_request = http_build_query(array_merge($this->_api_settings, $this->_request));
+		$settings = array_merge($this->_api_method, $this->_api_settings);
+		$this->_request = $this->filter_values(array_merge($settings, $this->_request));	
+		$this->_request = http_build_query($this->_request);
 		$this->_http_query = $this->_api_endpoint.$this->_request;
 		
-		return $this->_parse_response($this->_make_request());
+		include 'paypal_paymentspro/request.php';
+		include 'paypal_paymentspro/response.php';
+		
+		return Paypal_PaymentsPro_Response::parse_response(Paypal_PaymentsPro_Request::make_request($this->_http_query));
 	}
 	
-	/**
-	 * Make a new request to PayPal API
-	 *
-	 * @param	array
-	 * @return	array
-	 */		
-	private function _make_request()
-	{
-		// create a new cURL resource
-		$curl = curl_init();
-		
-		// set URL
-		curl_setopt($curl, CURLOPT_URL, $this->_http_query);
-		
-		// set to return the data as a string
-		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($curl, CURLOPT_HEADER, 0);
-		
-		// Run the query and get a response
-		$response = curl_exec($curl);
-		
-		// close cURL resource, and free up system resources
-		curl_close($curl);
-		
-		// Return the response
-	
-		return $response;	
-	}
-
-	/**
-	 * Parse the response from the server
-	 *
-	 * @param	array
-	 * @return	object
-	 */		
-	private function _parse_response($response)
-	{
-		
-		$results = explode('&',urldecode($response));
-		foreach($results as $result)
-		{
-			list($key, $value) = explode('=', $result);
-			$response_array[$key]=$value;
-		}
-		
-		$return_object = array();
-		
-		//Set the response status
-		
-		($response_array['ACK'] == 'Success') 
-		? $success = TRUE 
-		: $failure = TRUE ;
-
-		if(isset($failure))
-		{	
-			$return_object = array('status'=>'failure', 'response'=>$response_array);
-		}
-		if(isset($success))
-		{	
-			$return_object = array('status'=>'success', 'response'=>$response_array);
-		}
-		
-		return (object) $response_array;		
-	}
 	
 }

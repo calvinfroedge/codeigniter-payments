@@ -32,6 +32,11 @@ class CF_Payments
 	private $_response_messages;	//Response messages that can be returned to the user or logged in the application
 
 	/**
+	 * The default params for the method
+	*/	
+	private	$_default_params;
+		
+	/**
 	 * The constructor function.
 	 */	
 	public function __construct()
@@ -336,11 +341,16 @@ class CF_Payments
 		
 		$method = $this->_payment_type;
 		
+		$this->_ci->load->config('payment_types/'.$method);
+		$this->_default_params = $this->_ci->config->item($method);
+		
 		$exists = $this->_method_exists($payment_module, $method);
+		
+		$params = array_merge($this->_default_params, $this->_params);
 		
 		($exists !== TRUE)
 		? $response = $exists 
-		: $response = $response = $do->$method($this->_params);
+		: $response = $response = $do->$method($params);
 		
 		return $response;
 	}
@@ -467,6 +477,28 @@ class CF_Payments
 				unset($array[$key]);
 		}
 		return $array;
-	}	
-
+	}
+	
+	/**
+	 * Returns an xml node if key=>value pair is not empty
+	 *
+	 * @param array	array of key=>value pairs to check
+	 * @return	string	string value
+	*/
+	protected function build_nodes($array)
+	{
+		$nodes = array();
+		foreach($array as $key=>$value)
+		{
+			if(!empty($value))
+			{
+				$nodes[$key] = "<$key>$value</$key>";
+			}
+			else
+			{
+				$nodes[$key] = "";
+			}
+		}
+		return $nodes;
+	}
 }

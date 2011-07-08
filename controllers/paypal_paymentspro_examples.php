@@ -21,7 +21,7 @@ class Paypal_PaymentsPro_Examples extends CI_Controller {
 					'city'				=>	'Tompkinsville', //REQUIRED.  city of the purchaser
 					'state'				=>	'KY', //REQUIRED.  state of the purchaser
 					'countrycode'		=>	'US', //REQUIRED.  country of the purchaser
-					'zip'				=>	'42167', //REQUIRED.  zip code of the purchaser
+					'postal_code'				=>	'42167', //REQUIRED.  zip code of the purchaser
 					'amt'				=>	'25.00', //REQUIRED.  purchase amount
 				)
 			)
@@ -40,7 +40,7 @@ class Paypal_PaymentsPro_Examples extends CI_Controller {
 					'city'				=>	'Tompkinsville', //REQUIRED.  city of the purchaser
 					'state'				=>	'KY', //REQUIRED.  state of the purchaser
 					'countrycode'		=>	'US', //REQUIRED.  country of the purchaser
-					'zip'				=>	'42167', //REQUIRED.  zip code of the purchaser
+					'postal_code'				=>	'42167', //REQUIRED.  zip code of the purchaser
 					'amt'				=>	'25.00', //REQUIRED.  purchase amount
 				)	
 			)
