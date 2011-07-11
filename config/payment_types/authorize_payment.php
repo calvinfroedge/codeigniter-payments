@@ -18,6 +18,7 @@ $config['authorize_payment'] = array(
 			'postal_code'				=>	'', //zip code of the purchaser
 			'amt'				=>	'', //purchase amount
 			'phone'	=>	'', //phone num of customer shipped to
+			'fax'				=>	'',
 			'identifier' => '', //Merchant provided identifier for the transaction
 			'currency_code'		=>	'', //currency code to use for the transaction.
 			'item_amt'			=>	'', //Amount for just the item being purchased.

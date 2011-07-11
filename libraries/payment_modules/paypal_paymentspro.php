@@ -73,7 +73,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	 * @param	array	An array of payment params, sent from your controller / library
 	 * @return	object	The response from the payment gateway
 	*/	
-	public function oneoff_payment($params)
+	public function paypal_paymentspro_oneoff_payment($params)
 	{
 		$this->_api_method = array('METHOD' => 'DoDirectPayment');
 		$this->_build_oneoff_request($params, 'Sale');	
@@ -85,7 +85,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	 * @param	array	An array of payment params, sent from your controller / library
 	 * @return	object	The response from the payment gateway
 	*/	
-	public function authorize_payment($params)
+	public function paypal_paymentspro_authorize_payment($params)
 	{
 		$this->_api_method = array('METHOD' => 'DoDirectPayment');
 		$this->_build_oneoff_request($params, 'Authorization');		
@@ -97,7 +97,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	 * @param	array	An array of payment params, sent from your controller / library
 	 * @return	object	The response from the payment gateway
 	*/	
-	public function capture_payment($params)
+	public function paypal_paymentspro_capture_payment($params)
 	{
 		$this->_api_method = array('METHOD' => 'DoDirectPayment');
 
@@ -125,7 +125,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	 * @param	array	An array of params, sent from your controller / library
 	 * @return	object	The response from the payment gateway
 	*/	
-	public function void_payment($params)
+	public function paypal_paymentspro_void_payment($params)
 	{
 		$this->_api_method = array('METHOD' => 'DoVoid');
 		
@@ -142,7 +142,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	 * @param	array	An array that contains your identifier
 	 * @return	object	The response from the payment gateway
 	*/	
-	public function change_transaction_status($params)
+	public function paypal_paymentspro_change_transaction_status($params)
 	{
 		$this->_api_method = array('METHOD' => 'ManagePendingTransactionStatus');
 		
@@ -159,7 +159,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	 * @param	array	An array that contains your identifier
 	 * @return	object	The response from the payment gateway
 	*/	
-	public function refund_payment($params)
+	public function paypal_paymentspro_refund_payment($params)
 	{
 		$this->_api_method = array('METHOD' => 'RefundTransaction');
 		
@@ -229,7 +229,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	 * @param	string	An array that contains your identifier
 	 * @return	object	The response from the payment gateway
 	*/	
-	public function get_transaction_details($params)
+	public function paypal_paymentspro_get_transaction_details($params)
 	{
 		$this->_api_method = array('METHOD' => 'GetTransactionDetails');
 		
@@ -247,7 +247,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	 *
 	 * Full method details found at https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_nvp_r_TransactionSearch
 	*/	
-	public function search_transactions($params)
+	public function paypal_paymentspro_search_transactions($params)
 	{
 		$this->_api_method = array('METHOD' => 'TransactionSearch');
 			
@@ -283,7 +283,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	 *
 	 * Full documentation for this API found at https://cms.paypal.com/es/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_nvp_r_CreateRecurringPayments
 	 */		
-	public function recurring_payment($params)
+	public function paypal_paymentspro_recurring_payment($params)
 	{
 		$this->_api_method = array('METHOD' => 'CreateRecurringPaymentsProfile');
 			
@@ -347,7 +347,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	 * @param	array
 	 * @return	object
 	 */		
-	public function get_recurring_profile($params)
+	public function paypal_paymentspro_get_recurring_profile($params)
 	{
 		$this->_api_method = array('METHOD'	=> 'GetRecurringPaymentsProfileDetails');
 		
@@ -364,7 +364,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	 * @param	array
 	 * @return	object
 	 */		
-	public function suspend_recurring_profile($params)
+	public function paypal_paymentspro_suspend_recurring_profile($params)
 	{
 		$this->_api_method = array('METHOD'	=> 'ManageRecurringPaymentsProfileStatus');
 		
@@ -383,7 +383,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	 * @param	array
 	 * @return	object
 	 */		
-	public function activate_recurring_profile($params)
+	public function paypal_paymentspro_activate_recurring_profile($params)
 	{
 		$this->_api_method = array('METHOD'	=> 'ManageRecurringPaymentsProfileStatus');
 		
@@ -402,7 +402,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	 * @param	array
 	 * @return	object
 	 */		
-	public function cancel_recurring_profile($params)
+	public function paypal_paymentspro_cancel_recurring_profile($params)
 	{
 		$this->_api_method = array('METHOD'	=> 'ManageRecurringPaymentsProfileStatus');
 		
@@ -421,7 +421,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	 * @param	array
 	 * @return	object
 	 */		
-	public function recurring_bill_outstanding($params)
+	public function paypal_paymentspro_recurring_bill_outstanding($params)
 	{
 		$this->_api_method = array('METHOD'	=> 'BillOutstandingAmount');
 		
@@ -440,7 +440,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	 * @param	array
 	 * @return	object
 	 */		
-	public function update_recurring_profile($params)
+	public function paypal_paymentspro_update_recurring_profile($params)
 	{
 		$this->_api_method = array('METHOD'	=> 'UpdateRecurringPaymentsProfile');
 	

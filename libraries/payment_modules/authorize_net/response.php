@@ -274,8 +274,19 @@ class Authorize_Net_Response extends Authorize_Net
 	
 	private function _parse_xml($start, $end)
 	{		
-        $start_position = strpos(self::$_xml_response, $start) + strlen($start);
+		$start_position = strpos(self::$_xml_response, $start);
+		
+		if($start_position !== false)
+		{
+        	$start_position = strpos(self::$_xml_response, $start) + strlen($start);
+        }
+        else
+        {
+        	return false;
+        }
+        
         $end_position   = strpos(self::$_xml_response, $end);
+        
         return substr(self::$_xml_response, $start_position, ($end_position - $start_position));		
 	}
 	
@@ -297,6 +308,7 @@ class Authorize_Net_Response extends Authorize_Net
 		
 			$status = 'Failure';						
 		
+		
 		return (object) array('status' => $status, 'response' => self::$_status_code_messages[self::$_processed_response['response_code']]);
 	}
 
@@ -313,6 +325,7 @@ class Authorize_Net_Response extends Authorize_Net
 		
 		if($status == 'Success')
 		{
+			print self::$_processed_response['identifier'];
 			return (object) array('status' => $status, 'response' => self::$_processed_response['message'], 'identifier' => self::$_processed_response['identifier']);
 		}
 		if($status == 'Failure')

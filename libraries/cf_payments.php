@@ -16,20 +16,40 @@
 
 class CF_Payments
 {
-	
-	public $_ci;  //The CodeIgniter instance
-	
+	/**
+	 * The CodeIgniter instance
+	*/		
+	public $_ci; 
+
+	/**
+	 * The version
+	*/	
 	private $_version = '1.0.0.';	//The version
+
+	/**
+	 * The payment module to use
+	*/	
+	private $_payment_module;  
+
+	/**
+	 * The payment type to make
+	*/		
+	private $_payment_type;	
+
+	/**
+	 * The params to use
+	*/		
+	private	$_params;
 	
-	private $_payment_module;  //The payment module to use
-	
-	private $_payment_type;	//The payment type
-	
-	private	$_params; //The params to use for the payment call
-	
+	/**
+	 * Error codes in the response object
+	*/		
 	private	$_response_codes;	//Error codes in the response object
-	
-	private $_response_messages;	//Response messages that can be returned to the user or logged in the application
+
+	/**
+	 * Response messages that can be returned to the user or logged in the application
+	*/		
+	private $_response_messages;
 
 	/**
 	 * The default params for the method
@@ -331,28 +351,29 @@ class CF_Payments
 	 */		
 	private function _do_method($payment_module)
 	{
-		if(! $module = $this->_load_module($payment_module))
+		$module = $this->_load_module($payment_module);
+
+		if($module === false)
 		{
 			log_message('error', $this->_response_messages['not_a_module']);
-			$response = (object) array('status' => 'failure', 'response_code' => $this->_response_codes['not_a_module'], 'response_message' => $this->_response_messages['not_a_module']);
+			return (object) array('status' => 'failure', 'response_code' => $this->_response_codes['not_a_module'], 'response_message' => $this->_response_messages['not_a_module']);		
 		}
 					
-		$do = new $payment_module;
+		$object = new $payment_module;
 		
-		$method = $this->_payment_type;
+		$method = $payment_module.'_'.$this->_payment_type;
 		
-		$this->_ci->load->config('payment_types/'.$method);
-		$this->_default_params = $this->_ci->config->item($method);
-		
-		$exists = $this->_method_exists($payment_module, $method);
-		
-		$params = array_merge($this->_default_params, $this->_params);
-		
-		($exists !== TRUE)
-		? $response = $exists 
-		: $response = $response = $do->$method($params);
-		
-		return $response;
+		if(!method_exists($payment_module, $method))
+		{
+			return (object) array('status' => 'failure', 'response_code' => $this->_response_codes['not_a_method'], 'response_message' => $this->_response_messages['not_a_method'].': '.$payment_module.'->'.$method);
+			log_message('error', $this->_response_messages['not_a_method'].' '.$object.'->'.$method);		
+		}
+		else
+		{
+			$this->_ci->load->config('payment_types/'.$method);
+			$this->_default_params = $this->_ci->config->item($method);
+			return $object->$method(array_merge($this->_default_params, $this->_params));
+		}
 	}
 
 	/**
@@ -376,27 +397,6 @@ class CF_Payments
 	}
 
 	/**
-	 * Check to see if a given method exists
-	 *
-	 * @param	string	The payment module to load
-	 * @return	mixed	Will return bool if file is not found.  Will return file as object if found.
-	 */			
-	private function _method_exists($object, $method)
-	{
-		if(!method_exists($object, $method))
-		{
-			$response = (object) array('status' => 'failure', 'response_code' => $this->_response_codes['not_a_method'], 'response_message' => $this->_response_messages['not_a_method'].' '.$object.'->'.$method);
-			log_message('error', $this->_response_messages['not_a_method'].' '.$object.'->'.$method);
-		}	
-		else
-		{
-			$response = TRUE;
-		}
-		
-		return $response;
-	}
-
-	/**
 	 * Check user inputs to make sure they're good
 	 *
 	 * @param	string	The payment module
@@ -410,7 +410,7 @@ class CF_Payments
 			'arrays'	=> array($params)
 		);
 		
-		if ($this->_check_datatypes($expected_datatypes) === FALSE)
+		if ($this->_check_datatypes($expected_datatypes) === false)
 		{
 			log_message('error', $this->_response_messages['invalid_input']);		
 			$response = (object) array('status' => 'failure', 'response_code' => $this->_response_codes['invalid_input'], 'response_message' => $this->_response_messages['invalid_input']);
@@ -500,5 +500,16 @@ class CF_Payments
 			}
 		}
 		return $nodes;
+	}
+
+	/**
+	 * Returns the response
+	 *
+	 * @param 	string	can be either 'Success' or 'Failure'
+	 * @return	string	string value
+	*/	
+	protected function _return_response($status, $response_from)
+	{
+	
 	}
 }
