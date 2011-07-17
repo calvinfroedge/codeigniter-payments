@@ -547,7 +547,7 @@ class Authorize_Net extends CF_Payments
 		if(!$xml)
 		{
 			$settings = array_merge($this->_api_method, $this->_api_settings);
-			$this->_request = $this->filter_values(array_merge($settings, $this->_request));	
+			$this->_request = $this->_filter_values(array_merge($settings, $this->_request));	
 			$this->_request = http_build_query($this->_request);	
 		}
 		

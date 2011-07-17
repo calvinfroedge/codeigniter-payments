@@ -8,8 +8,8 @@
 */
 $config['response_codes'] = array (
 	'not_a_module'		=> '000',
-	'invalid_input' 	=> '000',
-	'not_a_method'		=> '000',
+	'invalid_input' 	=> '001',
+	'not_a_method'		=> '002',
 );
 
 /**

@@ -19,12 +19,12 @@ class CF_Payments
 	/**
 	 * The CodeIgniter instance
 	*/		
-	public $_ci; 
+	public $ci; 
 
 	/**
 	 * The version
 	*/	
-	private $_version = '1.0.0.';	//The version
+	private $_version = '0.0.1';	//The version
 
 	/**
 	 * The payment module to use
@@ -76,13 +76,7 @@ class CF_Payments
 	 */
 	public function search_transactions($payment_module, $params)
 	{
-		if($response = $this->_check_inputs($payment_module, $params))
-		{
-			$this->_payment_type = 'search_transactions';
-			$this->_params = $params;	
-			$response = $this->_do_method($payment_module);		
-		}	
-		return $response;			
+		return $this->_make_gateway_call($payment_module, 'search_transactions', $params);	
 	}
 	
 	/**
@@ -95,13 +89,7 @@ class CF_Payments
 	 */
 	public function get_transaction_details($payment_module, $params)
 	{
-		if($response = $this->_check_inputs($payment_module, $params))
-		{
-			$this->_payment_type = 'get_transaction_details';
-			$this->_params = $params;
-			$response = $this->_do_method($payment_module);		
-		}	
-		return $response;				
+		return $this->_make_gateway_call($payment_module, 'get_transaction_details', $params);			
 	}
 	 
 	/**
@@ -114,13 +102,7 @@ class CF_Payments
 	 */	
 	public function authorize_payment($payment_module, $params)
 	{
-		if($response = $this->_check_inputs($payment_module, $params))
-		{
-			$this->_payment_type = 'authorize_payment';
-			$this->_params = $params;
-			$response = $this->_do_method($payment_module);		
-		}	
-		return $response;	
+		return $this->_make_gateway_call($payment_module, 'authorize_payment', $params);			
 	}
 
 	/**
@@ -134,13 +116,7 @@ class CF_Payments
 	 */	
 	public function capture_payment($payment_module, $params)	
 	{
-		if($response = $this->_check_inputs($payment_module, $params))
-		{
-			$this->_payment_type = 'capture_payment';
-			$this->_params = $params;
-			$response = $this->_do_method($payment_module);		
-		}	
-		return $response;	
+		return $this->_make_gateway_call($payment_module, 'capture_payment', $params);	
 	}
 	
 	/**
@@ -153,13 +129,7 @@ class CF_Payments
 	 */			
 	public function oneoff_payment($payment_module, $params)
 	{
-		if($response = $this->_check_inputs($payment_module, $params))
-		{
-			$this->_payment_type = 'oneoff_payment';
-			$this->_params = $params;	
-			$response = $this->_do_method($payment_module);		
-		}	
-		return $response;
+		return $this->_make_gateway_call($payment_module, 'oneoff_payment', $params);	
 	}
 
 	/**
@@ -171,13 +141,7 @@ class CF_Payments
 	 */	
 	public function void_payment($payment_module, $params)
 	{
-		if($response = $this->_check_inputs($payment_module, $params))
-		{
-			$this->_payment_type = 'void_payment';
-			$this->_params = $params;
-			$response = $this->_do_method($payment_module);		
-		}	
-		return $response;	
+		return $this->_make_gateway_call($payment_module, 'void_payment', $params);	
 	}
 
 	/**
@@ -188,13 +152,7 @@ class CF_Payments
 	*/	
 	public function change_transaction_status($payment_module, $params)
 	{
-		if($response = $this->_check_inputs($payment_module, $params))
-		{
-			$this->_payment_type = 'change_transaction_status';
-			$this->_params = $params;		
-			$response = $this->_do_method($payment_module);		
-		}	
-		return $response;	
+		return $this->_make_gateway_call($payment_module, 'change_transaction_status', $params);	
 	}
 
 	/**
@@ -206,13 +164,7 @@ class CF_Payments
 	 */		
 	public function refund_payment($payment_module, $params)
 	{
-		if($response = $this->_check_inputs($payment_module, $params))
-		{
-			$this->_payment_type = 'refund_payment';
-			$this->_params = $params;	
-			$response = $this->_do_method($payment_module);		
-		}	
-		return $response;			
+		return $this->_make_gateway_call($payment_module, 'refund_payment', $params);			
 	}
 
 	/**
@@ -224,13 +176,7 @@ class CF_Payments
 	 */	
 	public function recurring_payment($payment_module, $params)
 	{
-		if($response = $this->_check_inputs($payment_module, $params))
-		{
-			$this->_payment_type = 'recurring_payment';
-			$this->_params = $params;
-			$response = $this->_do_method($payment_module);		
-		}	
-		return $response;	
+		return $this->_make_gateway_call($payment_module, 'recurring_payment', $params);	
 	}
 
 	/**
@@ -242,13 +188,7 @@ class CF_Payments
 	 */	
 	public function get_recurring_profile($payment_module, $params)
 	{
-		if($response = $this->_check_inputs($payment_module, $params))
-		{
-			$this->_payment_type = 'get_recurring_profile';
-			$this->_params = $params;	
-			$response = $this->_do_method($payment_module);		
-		}	
-		return $response;		
+		return $this->_make_gateway_call($payment_module, 'get_recurring_profile', $params);		
 	}
 
 	/**
@@ -260,13 +200,7 @@ class CF_Payments
 	 */	
 	public function suspend_recurring_profile($payment_module, $params)
 	{
-		if($response = $this->_check_inputs($payment_module, $params))
-		{
-			$this->_payment_type = 'suspend_recurring_profile';
-			$this->_params = $params;		
-			$response = $this->_do_method($payment_module);		
-		}	
-		return $response;	
+		return $this->_make_gateway_call($payment_module, 'suspend_recurring_profile', $params);	
 	}	
 
 	/**
@@ -278,13 +212,7 @@ class CF_Payments
 	 */	
 	public function activate_recurring_profile($payment_module, $params)
 	{
-		if($response = $this->_check_inputs($payment_module, $params))
-		{
-			$this->_payment_type = 'activate_recurring_profile';
-			$this->_params = $params;		
-			$response = $this->_do_method($payment_module);		
-		}	
-		return $response;	
+		return $this->_make_gateway_call($payment_module, 'activate_recurring_profile', $params);	
 	}
 
 	/**
@@ -296,13 +224,7 @@ class CF_Payments
 	 */	
 	public function cancel_recurring_profile($payment_module, $params)
 	{
-		if($response = $this->_check_inputs($payment_module, $params))
-		{
-			$this->_payment_type = 'cancel_recurring_profile';
-			$this->_params = $params;	
-			$response = $this->_do_method($payment_module);		
-		}	
-		return $response;		
+		return $this->_make_gateway_call($payment_module, 'cancel_recurring_profile', $params);			
 	}	
 
 	/**
@@ -314,13 +236,7 @@ class CF_Payments
 	 */		
 	public function recurring_bill_outstanding($payment_module, $params)
 	{
-		if($response = $this->_check_inputs($payment_module, $params))
-		{
-			$this->_payment_type = 'recurring_bill_outstanding';
-			$this->_params = $params;	
-			$response = $this->_do_method($payment_module);		
-		}	
-		return $response;		
+		return $this->_make_gateway_call($payment_module, 'recurring_bill_outstanding', $params);		
 	}
 
 	/**
@@ -332,15 +248,33 @@ class CF_Payments
 	 */	
 	public function update_recurring_profile($payment_module, $params)
 	{
-		if($response = $this->_check_inputs($payment_module, $params))
-		{
-			$this->_payment_type = 'update_recurring_profile';
-			$this->_params = $params;
-			$response = $this->_do_method($payment_module);		
-		}	
-		return $response;	
+		return $this->_make_gateway_call($payment_module, 'update_recurring_profile', $params);	
 	}
 
+	/**
+	 * Make a call to a gateway. Uses other helper methods to make the request.
+	 *
+	 * @param	string	The payment module to use
+	 * @param	string	The type of method being used.
+	 * @param	array	Params to submit to the payment module
+	 * @return	object	Should return a success or failure, along with a response.
+	 */	
+	private function _make_gateway_call($payment_module, $payment_type, $params)
+	{
+		$inputs = $this->_check_inputs($payment_module, $params);
+		if($inputs)
+		{
+			$this->_payment_type = $payment_type;
+			$this->_params = $params;	
+			$response = $this->_do_method($payment_module);
+			return $response;		
+		}
+		else
+		{
+			return $inputs;	
+		}	
+	}
+	
 	/**
 	 * Try a method
 	 *
@@ -353,10 +287,9 @@ class CF_Payments
 	{
 		$module = $this->_load_module($payment_module);
 
-		if($module === false)
+		if($module === FALSE)
 		{
-			log_message('error', $this->_response_messages['not_a_module']);
-			return (object) array('status' => 'failure', 'response_code' => $this->_response_codes['not_a_module'], 'response_message' => $this->_response_messages['not_a_module']);		
+			return $this->_return_response('failure', 'not_a_module');
 		}
 					
 		$object = new $payment_module;
@@ -365,8 +298,7 @@ class CF_Payments
 		
 		if(!method_exists($payment_module, $method))
 		{
-			return (object) array('status' => 'failure', 'response_code' => $this->_response_codes['not_a_method'], 'response_message' => $this->_response_messages['not_a_method'].': '.$payment_module.'->'.$method);
-			log_message('error', $this->_response_messages['not_a_method'].' '.$object.'->'.$method);		
+			return $this->_return_response('failure', 'not_a_method');	
 		}
 		else
 		{
@@ -387,7 +319,7 @@ class CF_Payments
 		$module = dirname(__FILE__).'/payment_modules/'.$payment_module.'.php';
 		if (!is_file($module))
 		{
-			$response = false;
+			$response = FALSE;
 		}
 		ob_start();
 		include $module;
@@ -410,14 +342,13 @@ class CF_Payments
 			'arrays'	=> array($params)
 		);
 		
-		if ($this->_check_datatypes($expected_datatypes) === false)
+		if ($this->_check_datatypes($expected_datatypes) === FALSE)
 		{
-			log_message('error', $this->_response_messages['invalid_input']);		
-			$response = (object) array('status' => 'failure', 'response_code' => $this->_response_codes['invalid_input'], 'response_message' => $this->_response_messages['invalid_input']);
+			$response = $this->_return_response('failure', 'invalid_input');		
 		}
 		else
 		{
-			$response = true;
+			$response = TRUE;
 		}
 		
 		return $response;	
@@ -427,7 +358,7 @@ class CF_Payments
 	 * Make sure data types are as expected
 	 *
 	 * @param	array	array of params to check to ensure proper datatype
-	 * @return	mixed	Will return true if all pass.  Will return an object if datatypes are bad.
+	 * @return	mixed	Will return TRUE if all pass.  Will return an object if datatypes are bad.
 	 */		
 	private function _check_datatypes($datatypes)
 	{
@@ -457,10 +388,11 @@ class CF_Payments
 		}
 		
 		if(count($invalids) > 0)
-
-			return false;
+		{
+			return FALSE;
+		}
 		
-		return true;
+		return TRUE;
 	}
 
 	/**
@@ -469,12 +401,14 @@ class CF_Payments
 	 * @param	array	array of key=>value pairs to check
 	 * @return	array	Will return filtered array
 	 */
-	protected function filter_values($array)
+	protected function _filter_values($array)
 	{	
 		foreach($array as $key=>$value)
 		{
-			if($value == null)
+			if($value == NULL)
+			{
 				unset($array[$key]);
+			}
 		}
 		return $array;
 	}
@@ -485,7 +419,7 @@ class CF_Payments
 	 * @param array	array of key=>value pairs to check
 	 * @return	string	string value
 	*/
-	protected function build_nodes($array)
+	protected function _build_nodes($array)
 	{
 		$nodes = array();
 		foreach($array as $key=>$value)
@@ -508,8 +442,45 @@ class CF_Payments
 	 * @param 	string	can be either 'Success' or 'Failure'
 	 * @return	string	string value
 	*/	
-	protected function _return_response($status, $response_from)
+	protected function _return_response($status, $response, $gateway_message = NULL, $gateway_response = NULL)
 	{
-	
+		($status == 'success')
+		? $message_type = 'info'
+		: $message_type = 'error';
+
+		log_message($message_type, $this->_response_messages[$response]);
+		
+		if(empty($gateway_message) && empty($gateway_response))
+		{
+			return (object) array
+			(
+				'status' 			=>	$status, 
+				'response_code' 	=>	$this->_response_codes[$response], 
+				'response_message' 	=>	$this->_response_messages[$response]
+			);	
+		}
+		
+		if(!empty($gateway_message) && empty($gateway_response))
+		{
+			return (object) array
+			(
+				'status' 			=>	$status, 
+				'response_code' 	=>	$this->_response_codes[$response], 
+				'response_message' 	=>	$this->_response_messages[$response],
+				'gateway_message'	=>	$gateway_message
+			);			
+		}
+		
+		if(!empty($gateway_message) && !empty($gateway_response))
+		{
+			return (object) array
+			(
+				'status' 			=>	$status, 
+				'response_code' 	=>	$this->_response_codes[$response], 
+				'response_message' 	=>	$this->_response_messages[$response],
+				'gateway_message'	=>	$gateway_message,
+				'gateway_response'	=>	$gateway_response
+			);			
+		}
 	}
 }
