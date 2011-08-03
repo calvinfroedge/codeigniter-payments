@@ -1,7 +1,12 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
-class PayPal_PaymentsPro extends CF_Payments
+class PayPal_PaymentsPro
 {	
+	/**
+	 *	The payments object
+	*/
+	public $payments;
+	
 	/**
 	 * The use who wil make the call to the paypal gateway
 	*/
@@ -30,7 +35,7 @@ class PayPal_PaymentsPro extends CF_Payments
 	/**
 	 * The API method currently being utilized
 	*/
-	private $_api_method;		
+	protected $_api_method;		
 
 	/**
 	 * The API method currently being utilized
@@ -55,16 +60,16 @@ class PayPal_PaymentsPro extends CF_Payments
 	/**
 	 * Constructor method
 	*/		
-	public function __construct()
+	public function __construct($cf_payments)
 	{
-		parent::__construct();	
-		$this->_ci->load->config('payment_modules/paypal_paymentspro');
-		$this->_api_endpoint = $this->_ci->config->item('paypal_api_endpoint');		
+		$this->payments = $cf_payments;
+		$this->payments->ci->load->config('payment_modules/paypal_paymentspro');
+		$this->_api_endpoint = $this->payments->ci->config->item('paypal_api_endpoint');		
 		$this->_api_settings = array(
-			'USER'	=> $this->_ci->config->item('paypal_api_username'),
-			'PWD'	=> $this->_ci->config->item('paypal_api_password'),
-			'VERSION' => $this->_ci->config->item('paypal_api_version'),
-			'SIGNATURE'	=> $this->_ci->config->item('paypal_api_signature'),		
+			'USER'	=> $this->payments->ci->config->item('paypal_api_username'),
+			'PWD'	=> $this->payments->ci->config->item('paypal_api_password'),
+			'VERSION' => $this->payments->ci->config->item('paypal_api_version'),
+			'SIGNATURE'	=> $this->payments->ci->config->item('paypal_api_signature'),		
 		);
 	}
 
@@ -511,14 +516,18 @@ class PayPal_PaymentsPro extends CF_Payments
 	private function _handle_query()
 	{
 		$settings = array_merge($this->_api_method, $this->_api_settings);
-		$this->_request = $this->filter_values(array_merge($settings, $this->_request));	
-		$this->_request = http_build_query($this->_request);
+		$merged = array_merge($settings, $this->_request);
+		$request = $this->payments->filter_values($merged);	
+		$this->_request = http_build_query($request);
 		$this->_http_query = $this->_api_endpoint.$this->_request;
 		
 		include 'paypal_paymentspro/request.php';
 		include 'paypal_paymentspro/response.php';
 		
-		return Paypal_PaymentsPro_Response::parse_response(Paypal_PaymentsPro_Request::make_request($this->_http_query));
+		$make_request = Paypal_PaymentsPro_Request::make_request($this->_http_query);
+		$gateway_response = Paypal_PaymentsPro_Response::parse_response($make_request);
+		
+		return $gateway_response;
 	}
 	
 	

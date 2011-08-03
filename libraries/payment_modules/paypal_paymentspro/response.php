@@ -16,32 +16,38 @@ class Paypal_PaymentsPro_Response extends Paypal_PaymentsPro
 	 */		
 	public function parse_response($response)
 	{
-		
+		print_r($response);exit;	
 		$results = explode('&',urldecode($response));
 		foreach($results as $result)
 		{
 			list($key, $value) = explode('=', $result);
-			$response_array[$key]=$value;
+			$gateway_response[$key]=$value;
 		}
 		
-		$return_object = array();
-		
-		//Set the response status
-		
-		($response_array['ACK'] == 'Success') 
-		? $success = TRUE 
-		: $failure = TRUE ;
-
-		if(isset($failure))
-		{	
-			$return_object = array('status'=>'failure', 'message'=>$response_array);
+		if($gateway_response['ACK'] == 'Success')
+		{
+			return $this->payments->return_response(
+				'Success',
+				$this->payments->payment_type.'_success',
+				'gateway_response',
+				(object) array(
+					'identifier'	=>	$gateway_response['TRANSACTIONID'],
+					'timestamp'		=>	$gateway_response['TIMESTAMP']
+				)
+			);
 		}
-		if(isset($success))
-		{	
-			$return_object = array('status'=>'success', 'message'=>$response_array);
-		}
-		
-		return (object) $response_array;		
+		else
+		{
+			return $this->payments->return_response(
+				'Failure',
+				$this->payments->payment_type.'_failure',
+				'gateway_response',
+				(object) array(
+					'timestamp'		=>	$gateway_response['TIMESTAMP'],
+					'reason'		=>	$gateway_response['L_LONGMESSAGE0']
+				)
+			);		
+		}	
 	}
 
 }
