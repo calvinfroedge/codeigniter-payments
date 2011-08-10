@@ -24,7 +24,7 @@ class CF_Payments
 	/**
 	 * The version
 	*/	
-	private $_version = '0.0.1';	//The version
+	private $_version = '0.0.1';
 
 	/**
 	 * The payment module to use
@@ -84,7 +84,7 @@ class CF_Payments
 		}
 		else
 		{
-			$response = $this->_return_response(
+			$response = $this->return_response(
 				'failure', 
 				'not_a_method', 
 				'local_response'
@@ -122,17 +122,31 @@ class CF_Payments
 	 */	
 	private function _make_gateway_call($payment_module, $payment_type, $params)
 	{	
-		$valid_inputs = $this->_check_inputs($payment_module, $params);
-		if($valid_inputs === TRUE)
+		$module_exists = $this->_load_module($payment_module);
+
+		if($module_exists === FALSE)
 		{
-			$this->payment_type = $payment_type;
-			$this->_params = $params;	
-			$response = $this->_do_method($payment_module);
-			return $response;		
+			return $this->return_response(
+				'failure', 
+				'not_a_module', 
+				'local_response'
+			);
 		}
 		else
 		{
-			return $inputs;	
+			$this->ci->load->config('payment_modules/'.$payment_module);
+			$this->payment_type = $payment_type;	
+			$valid_inputs = $this->_check_inputs($payment_module, $params);
+			if($valid_inputs === TRUE)
+			{
+				$this->_params = $params;	
+				$response = $this->_do_method($payment_module);
+				return $response;		
+			}
+			else
+			{
+				return $valid_inputs;	
+			}
 		}	
 	}
 	
@@ -145,25 +159,14 @@ class CF_Payments
 	 * @return	object	Should return a success or failure, along with a response
 	 */		
 	private function _do_method($payment_module)
-	{
-		$module = $this->_load_module($payment_module);
-
-		if($module === FALSE)
-		{
-			return $this->_return_response(
-				'failure', 
-				'not_a_module', 
-				'local_response'
-			);
-		}
-					
+	{				
 		$object = new $payment_module($this);
 		
 		$method = $payment_module.'_'.$this->payment_type;
 		
 		if(!method_exists($payment_module, $method))
 		{
-			return $this->_return_response(
+			return $this->return_response(
 				'failure', 
 				'not_a_method', 
 				'local_response'
@@ -173,13 +176,12 @@ class CF_Payments
 		{
 			$this->ci->load->config('payment_types/'.$this->payment_type);
 			$this->_default_params = $this->ci->config->item($this->payment_type);
-			
 			return $object->$method(
 				array_merge(
 					$this->_default_params, 
 					$this->_params
 				)
-			);
+			);						
 		}
 	}
 
@@ -194,13 +196,11 @@ class CF_Payments
 		$module = dirname(__FILE__).'/payment_modules/'.$payment_module.'.php';
 		if (!is_file($module))
 		{
-			$response = FALSE;
+			return FALSE;
 		}
 		ob_start();
 		include $module;
-		$response = ob_get_clean();
-		
-		return $response;
+		return ob_get_clean();
 	}
 
 	/**
@@ -220,14 +220,14 @@ class CF_Payments
 		$expected_datatypes = $this->_check_datatypes($expected_datatypes);
 		if ($expected_datatypes === FALSE)
 		{
-			return $this->_return_response(
+			return $this->return_response(
 				'failure', 
 				'invalid_input', 
 				'local_response'
 			);		
 		}
 
-		$expected_params = $this->_check_params($params);
+		$expected_params = $this->_check_params($payment_module, $params);
 		
 		if($expected_params !== TRUE)
 		{
@@ -281,11 +281,42 @@ class CF_Payments
 	/**
 	 * Make sure params are as expected
 	 *
+	 * @param	string	the name of the payment module being used
 	 * @param	array	array of params to check to ensure proper formatting
 	 * @return	mixed	Will return TRUE if all pass.  Will return an object if a param is bad.
 	 */			
-	private function _check_params($params)
+	private function _check_params($payment_module, $params)
 	{
+		//Ensure required params are present
+		$req = $this->ci->config->item('required_params');
+		$req = $req[$this->payment_type];
+		
+		$missing = array();
+		
+		foreach($req as $k=>$v)
+		{
+			if(!array_key_exists($v, $params))
+			{
+				$missing[] = $this->_response_details['missing_'.$v];
+			}
+			
+	
+			if(empty($params[$v]) OR is_null($params[$v]) OR $params[$v] == ' ')
+			{
+				$missing[] = $this->_response_details['missing_'.$v];
+			}
+		}
+		
+		if(count($missing) > 0)
+		{
+			return $this->return_response(
+				'failure', 
+				'required_params_missing', 
+				'local_response',
+				$missing
+			);					
+		}
+		
 		//Ensure dates match MMYYYY format
 		if(array_key_exists('cc_exp', $params))
 		{
@@ -294,7 +325,7 @@ class CF_Payments
 			
 			if(strlen($exp_date) != 6 OR !is_numeric($exp_date) OR $m1 > 1)
 			{
-				return $this->_return_response(
+				return $this->return_response(
 					'failure', 
 					'invalid_input', 
 					'local_response', 
@@ -323,30 +354,151 @@ class CF_Payments
 		}
 		return $array;
 	}
+
+	/**
+	 * Returns an xml document
+	 *
+	 * @param 	array	the structure for the xml
+	 * @return	string	a well-formed XML string
+	*/	
+	public function build_xml_request($xml_version, $character_encoding, $parent, $xml_schema, $xml_params)
+	{
+		$xml = '<?xml version="'.$xml_version.'" encoding="'.$character_encoding.'"?>';
+		$xml .= '<'.$parent.' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="'.$xml_schema.'">';
+		$xml .= $this->build_nodes($xml_params);
+		$xml .= '</'.$parent.'>';
+		
+		return $xml;
+	}
 	
 	/**
-	 * Returns an xml node if key=>value pair is not empty
+	 * Returns a well-formed string of XML nodes
 	 *
-	 * @param array	array of key=>value pairs to check
-	 * @return	string	string value
+	 * @param	array	associative array of values
+	 * @return	string	well-formed XML string
 	*/
-	protected function _build_nodes($array)
+	public function build_nodes($params, $key_to_set = NULL)
 	{
-		$nodes = array();
-		foreach($array as $key=>$value)
-		{
-			if(!empty($value))
+		$string = "";
+		$dont_wrap = FALSE;
+		
+		foreach($params as $k=>$v)
+		{	
+			if(is_bool($v) AND $v === TRUE)
 			{
-				$nodes[$key] = "<$key>$value</$key>";
+				$v = 'true';
 			}
-			else
+			
+			if(is_bool($v) AND $v === FALSE)
 			{
-				$nodes[$key] = "";
+				$v = 'false';
 			}
+			
+			if(empty($v))
+			{
+				unset($k);
+				continue;
+			}
+			
+			if(is_array($v))
+			{		
+				if($k === 'repeated_key')
+				{					
+					if($v['wraps'] === FALSE)
+					{
+						$dont_wrap = TRUE;
+					}
+					
+					$node_name = $v['name'];
+					$node_contents = $this->build_nodes($v['values'], $v['name']);
+				}
+				else
+				{
+					$node_name = $k;
+					$node_contents = $this->build_nodes($v);
+				}
+			}
+			
+			if(!is_array($v))
+			{
+				$node_name = $k;
+				$node_contents = $v;
+			}
+			
+			if($key_to_set !== NULL)
+			{
+				$node_name = $key_to_set;
+			}
+				
+			if(!empty($node_contents) AND $dont_wrap === TRUE)
+			{
+				$string .= $node_contents;
+			}
+
+			if(!empty($node_contents) AND $dont_wrap === FALSE)
+			{
+				$string .= '<'.$node_name.'>';
+				$string .= $node_contents;
+				$string .= '</'.$node_name.'>';
+			}			
 		}
-		return $nodes;
+		return $string;
 	}
 
+	/**
+	 * Parses an XML response and creates an object using SimpleXML
+	 *
+	 * @param 	string	raw xml string
+	 * @return	object	response object
+	*/		
+	public function parse_xml($xml_str)
+	{
+		$xml_str = trim($xml_str);
+		$xml_str = preg_replace('/xmlns="(.+?)"/', '', $xml_str);
+		if($xml_str[0] != '<')
+		{
+			$xml_str = explode('<', $xml_str);
+			unset($xml_str[0]);
+			$xml_str = '<'.implode('<', $xml_str);
+		}
+		
+		$xml = new SimpleXMLElement($xml_str);
+		
+		return $xml;
+	}
+
+	/**
+	 * Arrayize an object
+	 *
+	 * @param	object	the object to convert to an array
+	 * @return	array	a converted array
+	*/
+	public function arrayize_object($input)
+	{
+		if(!is_object($input))
+		{
+			return $input;
+		}
+		else
+		{
+			$final = array();
+			$vars = get_object_vars($input);
+			foreach($vars as $k=>$v)
+			{
+				if(is_object($v))
+				{
+					$final[$k] = $this->arrayize_object($v);
+				}
+				else
+				{
+					$final[$k] = $v;
+				}
+			}
+		}
+	
+		return $final;
+	}
+	
 	/**
 	 * Returns the response
 	 *
@@ -389,6 +541,12 @@ class CF_Payments
 	*/	
 	private function _return_local_response($status, $response, $response_details = null)
 	{
+		$status = strtolower($status);
+		
+		($status == 'success')
+		? $message_type = 'info'
+		: $message_type = 'error';
+			
 		log_message($message_type, $this->_response_messages[$response]);
 		
 		if(is_null($response_details))

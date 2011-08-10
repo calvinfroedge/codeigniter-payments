@@ -63,13 +63,12 @@ class PayPal_PaymentsPro
 	public function __construct($cf_payments)
 	{
 		$this->payments = $cf_payments;
-		$this->payments->ci->load->config('payment_modules/paypal_paymentspro');
-		$this->_api_endpoint = $this->payments->ci->config->item('paypal_api_endpoint');		
+		$this->_api_endpoint = $this->payments->ci->config->item('api_endpoint');		
 		$this->_api_settings = array(
-			'USER'	=> $this->payments->ci->config->item('paypal_api_username'),
-			'PWD'	=> $this->payments->ci->config->item('paypal_api_password'),
-			'VERSION' => $this->payments->ci->config->item('paypal_api_version'),
-			'SIGNATURE'	=> $this->payments->ci->config->item('paypal_api_signature'),		
+			'USER'	=> $this->payments->ci->config->item('api_username'),
+			'PWD'	=> $this->payments->ci->config->item('api_password'),
+			'VERSION' => $this->payments->ci->config->item('api_version'),
+			'SIGNATURE'	=> $this->payments->ci->config->item('api_signature'),		
 		);
 	}
 
@@ -202,7 +201,7 @@ class PayPal_PaymentsPro
 			'STREET2'			=> 	$params['street2'],
 			'CITY'				=> 	$params['city'],
 			'STATE'				=> 	$params['state'],
-			'COUNTRYCODE'		=> 	$params['countrycode'],
+			'country'		=> 	$params['country'],
 			'ZIP'				=> 	$params['postal_code'],
 			'AMT'				=> 	$params['amt'],
 			'SHIPTOPHONENUM'	=> 	$params['phone'],
@@ -328,7 +327,7 @@ class PayPal_PaymentsPro
 			'EMAIL'					=>	$params['email'],
 			'PAYERID'				=>	$params['identifier'],
 			'PAYERSTATUS'			=>	$params['payer_status'],
-			'COUNTRYCODE'			=>	$params['country_code'],
+			'country'			=>	$params['country_code'],
 			'BUSINESS'				=>	$params['business_name'],
 			'SALUTATION'			=>	$params['salutation'],
 			'FIRSTNAME'				=>	$params['first_name'],
@@ -488,7 +487,7 @@ class PayPal_PaymentsPro
 			'STREET2'					=>	$params['street2'],
 			'CITY'						=>	$params['city'],
 			'STATE'						=>	$params['state'],
-			'COUNTRYCODE'				=>	$params['country_code'],
+			'country'				=>	$params['country_code'],
 			'ZIP'						=>	$params['postal_code'],	
 		);
 		

@@ -1,6 +1,6 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
-class Authorize_Net extends CF_Payments
+class Authorize_Net
 {		
 	/**
 	 * The use who wil make the call to the paypal gateway
@@ -65,26 +65,426 @@ class Authorize_Net extends CF_Payments
 	/**
 	 * Constructor method
 	*/		
-	public function __construct()
+	public function __construct($cf_payments)
 	{
-		parent::__construct();	
-						
-		$this->_ci->load->config('payment_modules/authorize_net');
-		$this->_default_params = $this->_ci->config->item('method_params');
-		$this->_api_endpoint = $this->_ci->config->item('authorize_net_api_endpoint');
-		$this->_xml_api_endpoint = $this->_ci->config->item('authorize_net_xml_api_endpoint');
-		$this->_delimiter = $this->_ci->config->item('authorize_net_delimiter');		
+		$this->payments = $cf_payments;				
+		$this->_default_params = $this->payments->ci->config->item('method_params');
+		$this->_api_endpoint = $this->payments->ci->config->item('api_endpoint');
+		$this->_delimiter = $this->payments->ci->config->item('delimiter');		
 		$this->_api_settings = array(
-			'x_login'		=> $this->_ci->config->item('authorize_net_api_username'),
-			'x_tran_key'	=> $this->_ci->config->item('authorize_net_api_password'),
-			'x_delim_data' 	=> true,
-			'x_delim_char'	=>	$this->_delimiter,
-			'x_relay_response'	=> false,	
-			'x_version'		=> '3.1',
-			
+			'login'			=> $this->payments->ci->config->item('api_username'),
+			'tran_key'		=> $this->payments->ci->config->item('api_password'),
+			'xml_version'	=> '1.0',
+			'encoding'		=> 'utf-8',
+			'xml_schema'	=> 'AnetApi/xml/v1/schema/AnetApiSchema.xsd',
+			'email_customer'=> $this->payments->ci->config->item('email_customer'),
+			'test_mode'		=> $this->payments->ci->config->item('test_mode')
 		);
 	}
 
+	/**
+	 * Builds a request
+	 * @param	array	array of params
+	 * @param	string	the api call to use
+	 * @param	string	the type of transaction
+	 * @return	array	Array of transaction settings
+	*/	
+	protected function _build_request($params, $transaction_type = NULL)
+	{
+		$nodes = array();
+		$nodes['merchantAuthentication'] = array(
+			'name' => $this->_api_settings['login'],
+			'transactionKey' =>	$this->_api_settings['tran_key'],		
+		);	
+		
+		if($this->_api_method == 'createTransactionRequest')
+		{		
+			$nodes['transactionRequest'] = $this->_transaction_fields($transaction_type, $params);						
+			$nodes['transactionRequest']['transactionSettings'] = $this->_transaction_settings();		
+		}
+
+		if($this->_api_method == 'getTransactionDetailsRequest')
+		{
+			$nodes['transId'] = $params['identifier'];
+		}
+
+		if($this->_api_method == 'ARBGetSubscriptionStatusRequest' OR $this->_api_method == 'ARBUpdateSubscriptionRequest' OR $this->_api_method == 'ARBCancelSubscriptionRequest')
+		{
+			$nodes['subscriptionId'] = $params['identifier'];
+		}	
+		
+		if($this->_api_method == 'ARBCreateSubscriptionRequest' OR $this->_api_method == 'ARBUpdateSubscriptionRequest')
+		{
+			$nodes['subscription'] = $this->_transaction_fields($transaction_type, $params);
+		}			
+								
+		$request = $this->payments->build_xml_request(
+			$this->_api_settings['xml_version'],
+			$this->_api_settings['encoding'],		
+			$this->_api_method,
+			$this->_api_settings['xml_schema'],
+			$nodes
+		);
+		
+		//var_dump($request);exit;
+		
+		return $request;	
+	}
+	
+	/**
+	 * Sets transaction settings
+	 * @return	array	Array of transaction settings
+	*/		
+	protected function _transaction_settings()
+	{
+		return array(
+			'repeated_key' => array(
+				'name' => 'setting',
+				'wraps'	=> FALSE,
+				'values' => array(
+					array(
+						'settingName' => 'allowPartialAuth', 
+						'settingValue'=> TRUE,
+					),
+					array(
+						'settingName' => 'emailCustomer',
+						'settingValue' => $this->_api_settings['email_customer']
+					),
+					array(
+						'settingName' => 'recurringBilling',
+						'settingValue' => FALSE
+					),
+					array(
+						'settingName' => 'testRequest',
+						'settingValue' => $this->_api_settings['test_mode']
+					)
+				)
+			)
+		);	
+	}
+
+	/**
+	 * Sets fields to a request
+	 * @param	string	The transaction type
+	 * @param	array	Array of params
+	 * @return	array	Array of fields
+	*/		
+	protected function _transaction_fields($transaction_type, $params)
+	{
+		$fields = array();
+		
+		if(!is_null($transaction_type))
+		{
+			$fields['transactionType'] = $transaction_type;
+		}
+		
+		if($this->_api_method == 'ARBCreateSubscriptionRequest')
+		{
+
+			$fields['name'] = $params['first_name'] . ' ' . $params['last_name'];
+
+			if($params['billing_period'] != 'Month' && $params['billing_period'] != 'Day') 
+			{
+				return $this->return_response(
+					'Failure', 
+					'invalid_date_params',
+					'local_response'
+				);
+			}
+			
+			if($params['billing_period'] == 'Month')
+			{
+				$params['billing_period'] = 'months';
+			}
+			
+			if($params['billing_period'] == 'Day')
+			{
+				$params['billing_period'] = 'days';
+			}
+					
+			$fields['paymentSchedule'] = array(
+				'interval' => array(
+					'length' => $params['billing_frequency'],
+					'unit' => $params['billing_period'],
+				),
+				'startDate' => $params['profile_start_date'],
+				'totalOccurrences' => $params['total_billing_cycles']
+			);
+			
+			if(isset($params['trial_billing_cycles']) AND isset($params['trial_amt']))
+			{
+				$fields['paymentSchedule']['interval']['trialOccurrences'] = $params['trial_billing_cycles'];
+				$fields['trialAmount'] = $params['trial_amt'];
+			}		
+		}
+		
+		if(isset($params['amt']))
+		{
+			$fields['amount'] = $params['amt'];
+		}
+		
+		if(isset($params['cc_number']))
+		{
+
+			$fields['payment']['creditCard'] = $this->_add_payment('credit_card', $params);
+		}
+		
+		if(isset($params['identifier']) AND $this->_api_method != 'ARBUpdateSubscriptionRequest')
+		{
+			$fields['refTransId'] = $params['identifier'];
+		}
+		
+		$fields['order'] = $this->_build_order_fields($params);
+		
+		if(isset($params['tax_amt']))
+		{
+			$fields['tax'] = array(
+				'amount' => $params['tax_amt']
+			);
+		}		
+		
+		if(isset($params['duty_amt']))
+		{
+			$fields['duty'] = array(
+				'amount' => $params['duty_amt']
+			);	
+		}
+
+		if(isset($params['shipping']))
+		{
+			$fields['shipping'] = array(
+				'amount' => $params['shipping_amt']
+			);			
+		}
+		
+		if(isset($params['tax_exempt']))
+		{
+			$fields['taxExempt'] = array(
+				'taxExempt' => $params['tax_exempt']
+			);			
+		}
+
+		if(isset($params['po_num']))
+		{
+			$fields['poNumber'] = array(
+				'poNumber' => $params['po_num']
+			);		
+		}
+		
+		$fields['customer'] = $this->_build_customer_fields($params);
+		
+		$fields['billTo'] = $this->_build_bill_to_fields($params);
+
+		$fields['shipTo'] = $this->_build_ship_to_fields($params);	
+
+		if(isset($params['ip_address']))
+		{
+			$fields['customerIP'] = $params['ip_address'];
+		}	
+		
+		return $fields;
+	}
+
+	/**
+	 * Builds fields for order node
+	 * @param	array	Array of params
+	 * @return	array	Array of fields
+	*/	
+	protected function _build_order_fields($params)
+	{
+		$order = array();
+		
+		if(isset($params['inv_num']))
+		{
+			if(isset($params['desc']))
+			{
+				$order = array(
+					'invoiceNumber' => $params['inv_num'],
+					'description' => $params['desc']
+				);				
+			}
+			else
+			{
+				$order = array(
+					'invoiceNumber' => $params['inv_num']				
+				);
+			}
+		}
+		
+		return $order;	
+	}
+
+	/**
+	 * Builds fields for billTo node
+	 * @param	array	Array of params
+	 * @return	array	Array of fields
+	*/			
+	protected function _build_bill_to_fields($params)
+	{
+		$bill_to = array();
+		
+		if(isset($params['first_name']))
+		{
+			$bill_to['firstName'] = $params['first_name'];
+		}	
+		
+		if(isset($params['last_name']))
+		{
+			$bill_to['lastName'] = $params['last_name'];
+		}
+
+		if(isset($params['business_name']))
+		{
+			$bill_to['company'] = $params['business_name'];
+		}
+
+		if(isset($params['street']))
+		{
+			$bill_to['address'] = $params['street'];
+		}
+
+		if(isset($params['city']))
+		{
+			$bill_to['city'] = $params['city'];
+		}
+
+		if(isset($params['state']))
+		{
+			$bill_to['state'] = $params['state'];
+		}
+
+		if(isset($params['postal_code']))
+		{
+			$bill_to['zip'] = $params['postal_code'];
+		}
+
+		if(isset($params['country']))
+		{
+			$bill_to['country'] = $params['country'];
+		}
+
+		if(isset($params['phone']))
+		{
+			$bill_to['phoneNumber'] = $params['fax'];
+		}	
+
+		if(isset($params['fax']))
+		{
+			$bill_to['faxNumber'] = $params['fax'];
+		}
+		
+		return $bill_to;		
+	}
+
+	/**
+	 * Builds fields for customer node
+	 * @param	array	Array of params
+	 * @return	array	Array of fields
+	*/		
+	protected function _build_customer_fields($params)
+	{
+		$customer = array();
+		
+		if(isset($params['email']))
+		{	
+			$customer['email'] = $params['email'];
+		}
+
+		if(isset($params['phone']))
+		{	
+			$customer['phoneNumber'] = $params['phone'];
+		}
+
+		if(isset($params['fax']))
+		{	
+			$customer['faxNumber'] = $params['fax'];
+		}		
+				
+	}
+
+	/**
+	 * Builds fields for shipTo node
+	 * @param	array	Array of params
+	 * @return	array	Array of fields
+	*/		
+	protected function _build_ship_to_fields($params)
+	{
+		$ship_to = array();
+		
+		if(isset($params['ship_to_first_name']))
+		{
+			$ship_to['firstName'] = $params['ship_to_first_name'];
+		}
+
+		if(isset($params['ship_to_last_name']))
+		{
+			$ship_to['lastName'] = $params['ship_to_last_name'];
+		}	
+
+		if(isset($params['ship_to_company']))
+		{
+			$ship_to['company'] = $params['ship_to_company'];
+		}	
+
+		if(isset($params['ship_to_street']))
+		{
+			$ship_to['address'] = $params['ship_to_street'];
+		}	
+
+		if(isset($params['ship_to_city']))
+		{
+			$ship_to['city'] = $params['ship_to_city'];
+		}	
+
+		if(isset($params['ship_to_state']))
+		{
+			$ship_to['state'] = $params['ship_to_state'];
+		}	
+
+		if(isset($params['ship_to_postal_code']))
+		{
+			$ship_to['zip'] = $params['ship_to_postal_code'];
+		}	
+
+		if(isset($params['ship_to_country']))
+		{
+			$ship_to['country'] = $params['ship_to_country'];
+		}	
+		
+		return $ship_to;	
+	}
+
+	/**
+	 * Add a payment method to a request
+	 * @param	string	Bank or credit card #
+	 * @param	array	params
+	 * @return	array	array
+	*/			
+	protected function _add_payment($type, $params)
+	{	
+		if($type === 'credit_card')
+		{
+			$card = array();
+			
+			if(isset($params['cc_number']))
+			{
+				$card['cardNumber'] = $params['cc_number'];
+			}
+			
+			if(isset($params['cc_exp']))
+			{
+				$card['expirationDate'] = $params['cc_exp'];
+			}
+			
+			if(isset($params['cc_code']))
+			{
+				$card['cardCode'] = $params['cc_code'];
+			}
+			
+			return $card;
+		}
+	}	
+		
 	/**
 	 * Make a oneoff payment
 	 * @param	array	An array of payment params, sent from your controller / library
@@ -92,9 +492,8 @@ class Authorize_Net extends CF_Payments
 	*/	
 	public function authorize_net_oneoff_payment($params)
 	{
-		$this->_api_method = array('x_type' => 'AUTH_CAPTURE');	
-		$this->_build_standard_request_fields($params);
-		
+		$this->_api_method = 'createTransactionRequest';
+		$this->_request = $this->_build_request($params, 'authCaptureTransaction');			
 		return $this->_handle_query();
 	}
 
@@ -105,49 +504,9 @@ class Authorize_Net extends CF_Payments
 	*/	
 	public function authorize_net_authorize_payment($params)
 	{
-		$this->_api_method = array('x_type' => 'AUTH_ONLY');
-		$this->_build_standard_request_fields($params);		
-		return $this->_handle_query();	
-	}
-
-	private function _build_standard_request_fields($params)
-	{
-		$this->_request = array(
-			'x_method'				=>	'CC',
-			'x_customer_ip'			=>	$params['ip_address'],
-			'x_card_num'			=>	$params['cc_number'],
-			'x_exp_date'			=>	$params['cc_exp'],
-			'x_card_code'			=>	$params['cc_code'],	
-			'x_email'				=>	$params['email'],
-			'x_first_name'			=>  $params['first_name'],
-			'x_last_name'			=>  $params['last_name'],
-			'x_company'				=>	$params['business_name'],
-			'x_address'				=>  $params['street'],
-			'x_city'				=>  $params['city'],
-			'x_state'				=>  $params['state'],
-			'x_country'				=>  $params['countrycode'],
-			'x_zip'					=>	$params['postal_code'],
-			'x_amount'				=>	$params['amt'],
-			'x_phone'				=>	$params['phone'],
-			'x_fax'					=>  $params['fax'],
-			'x_cust_id'				=>	$params['identifier'],	
-			'x_description'			=>	$params['desc'],			
-			'x_test_request'		=>	$params['run_as_test'],
-			'x_invoice_num'			=>  $params['inv_num'],
-			'x_duplicate_window'	=>	$params['duplicate_window'],
-			'x_ship_to_first_name'	=>	$params['ship_to_first_name'],
-			'x_ship_to_last_name'	=>	$params['ship_to_last_name'],
-			'x_ship_to_address'		=>	$params['ship_to_street'],
-			'x_ship_to_city'		=>	$params['ship_to_city'],
-			'x_ship_to_state'		=>	$params['ship_to_state'],
-			'x_ship_to_zip'			=>	$params['ship_to_zip'],
-			'x_ship_to_country'		=>	$params['ship_to_country'],
-			'x_ship_to_company'		=>	$params['ship_to_company'],
-			'x_tax'					=>	$params['tax_amt'],
-			'x_freight'				=>	$params['shipping_amt'],
-			'x_duty'				=>	$params['duty_amt'],
-			'x_tax_exempt'			=>	$params['tax_exempt']
-		);	
+		$this->_api_method = 'createTransactionRequest';
+		$this->_request = $this->_build_request($params, 'authOnlyTransaction');			
+		return $this->_handle_query();
 	}
 
 	/**
@@ -157,14 +516,9 @@ class Authorize_Net extends CF_Payments
 	*/	
 	public function authorize_net_capture_payment($params)
 	{
-		$this->_api_method = array('x_type' => 'PRIOR_AUTH_CAPTURE');
-		
-		$this->_request = array(
-			'x_trans_id'		=>	$params['identifier'],
-			'x_amount'			=>	$params['amt'], //Only required if amount is less than that which was originally authorized.
-		);
-				
-		return $this->_handle_query();	
+		$this->_api_method = 'createTransactionRequest';
+		$this->_request = $this->_build_request($params, 'priorAuthCaptureTransaction');			
+		return $this->_handle_query();
 	}
 
 	/**
@@ -176,13 +530,21 @@ class Authorize_Net extends CF_Payments
 	*/	
 	public function authorize_net_void_payment($params)
 	{
-		$this->_api_method = array('x_type' => 'VOID');
-		
-		$this->_request = array(
-			'x_trans_id'	=>	$params['identifier'],  //This should have been returned to you when you authorized or captured the payment.
-		);
-				
+		$this->_api_method = 'createTransactionRequest';
+		$this->_request = $this->_build_request($params, 'voidTransaction');			
 		return $this->_handle_query();	
+	}	
+
+	/**
+	 * Get the details for a particular transaction
+	 * @param	array	An array of payment params, sent from your controller / library
+	 * @return	object	The response from the payment gateway
+	*/	
+	public function authorize_net_get_transaction_details($params)
+	{
+		$this->_api_method = 'getTransactionDetailsRequest';
+		$this->_request = $this->_build_request($params);			
+		return $this->_handle_query();
 	}	
 	
 	/**
@@ -194,14 +556,9 @@ class Authorize_Net extends CF_Payments
 	*/	
 	public function authorize_net_refund_payment($params)
 	{
-		$this->_api_method = array('x_type' => 'CREDIT');
-		
-		$this->_request = array(
-			'x_trans_id'	=>	$params['identifier'],	//Required.  Should have been returned by previous transaction.
-			'x_card_num'	=>	$params['last_4_digits'],	//Can be full or partial
-		);
-				
-		return $this->_handle_query();		
+		$this->_api_method = 'createTransactionRequest';
+		$this->_request = $this->_build_request($params, 'refundTransaction');		
+		return $this->_handle_query();	
 	}	
 		
 	/**
@@ -210,130 +567,12 @@ class Authorize_Net extends CF_Payments
 	 * @param	array
 	 * @return	object
 	 *
-	 * Note:  Thanks to John Conde for His ARB sample class which I used as my starting point: http://www.merchant-account-services.org/blog/authorizenet-launches-recurring-billing-api/
 	 */		
 	public function authorize_net_recurring_payment($params)
 	{
-		if($params['billing_period'] != 'Month' && $params['billing_period'] != 'Day') 
-		{
-			return (object) array('status' => 'Failure', 'response' => 'Valid billing_period values for Authorize.net are "days" and "months"');
-		}
-		
-		if($params['billing_period'] == 'Month')
-			$params['billing_period'] = 'months';
-		
-		if($params['billing_period'] == 'Day')
-			$params['billing_period'] = 'days';
-		
-		$trial_params = $this->build_nodes(
-			array(
-				'trialOccurrences' 	=>  $params['trial_billing_cycles'],
-				'trialAmount'		=> 	$params['trial_amt'],				
-			)
-		);
-		
-		$order_params = $this->build_nodes(
-			array(
-				'invoiceNumber'		=> 	$params['inv_num'],
-				'description'		=> 	$params['desc'],				
-			)
-		);
-		
-		$customer_params = $this->build_nodes(
-			array(
-				'id'				=> 	$params['identifier'],
-				'email'				=> 	$params['email'],
-				'phoneNumber'		=>	$params['phone'],
-				'faxNumber'			=>	$params['fax'],				
-			)
-		);
-		
-		$bill_params = $this->build_nodes(
-			array(
-				'company'			=>	$params['business_name'],
-				'address'			=>	$params['street'],
-				'city'				=>	$params['city'],
-				'state'				=>	$params['state'],
-				'zip'				=>	$params['postal_code'],
-				'country'			=>	$params['countrycode'],
-			)
-		);
-		
-		$shipping_params = $this->build_nodes(
-			array(
-				'firstName'			=>	$params['ship_to_first_name'],
-				'lastName'			=>	$params['ship_to_last_name'],
-				'company'			=>	$params['ship_to_company'],
-				'address'			=>	$params['ship_to_street'],
-				'city'				=>	$params['ship_to_city'],
-				'state'				=>	$params['ship_to_state'],
-				'zip'				=>	$params['ship_to_zip'],
-				'country'			=>	$params['ship_to_country']
-			)
-		);
-		
-		//NOTE.  SOME OF THE NODES WHICH HAVE BEEN BUILT HAVE EMPTY VALUES.  IN THIS CASE, NOTHING WILL BE INSERTED INTO THE XML, EVEN IF A REFERENCE IS THERE.
-		
-		$this->_request =  "<?xml version='1.0' encoding='utf-8'?>
-        	<ARBCreateSubscriptionRequest xmlns='AnetApi/xml/v1/schema/AnetApiSchema.xsd'>
-        		<merchantAuthentication>
-                	<name>" . $this->_api_settings['x_login'] . "</name>
-                    <transactionKey>" . $this->_api_settings['x_tran_key'] . "</transactionKey>
-                </merchantAuthentication>
-                <refId>" . $params['identifier'] ."</refId>
-                <subscription>
-                	<name>". $params['first_name'] . ' ' . $params['last_name'] ."</name>
-                    <paymentSchedule>
-                    	<interval>
-                        	<length>". $params['billing_frequency'] ."</length>
-                            	<unit>". $params['billing_period'] ."</unit>
-                            </interval>
-                            <startDate>" . $params['profile_start_date'] . "</startDate>
-                            <totalOccurrences>". $params['total_billing_cycles'] . "</totalOccurrences>
-                            ". $trial_params['trialOccurrences'] ."
-                    </paymentSchedule>
-                    <amount>". $params['amt'] ."</amount>
-                    ". $trial_params['trialAmount'] ."
-                    <payment>
-                    	<creditCard>
-                        	<cardNumber>" . $params['cc_number'] . "</cardNumber>
-                            <expirationDate>" . $params['exp_date'] . "</expirationDate>
-                        </creditCard>
-                    </payment>
-                    <order>
-						". $order_params['invoiceNumber'] ."
-						". $order_params['description'] ."
-                    </order>
-                    <customer>
-                    	". $customer_params['id'] ."
-                        ". $customer_params['email']."
-                        ". $customer_params['phoneNumber']."
-                        ". $customer_params['faxNumber']."
-                    </customer>
-                    <billTo>
-                    	<firstName>". $params['first_name'] . "</firstName>
-                        <lastName>" . $params['last_name'] . "</lastName>
-                        ". $bill_params["company"] ."
-                        ". $bill_params["address"] ."
-                        ". $bill_params['city'] ."
-                        ". $bill_params['state'] ."
-                        ". $bill_params['zip'] ."
-                        ". $bill_params['country'] ."
-                    </billTo>
-                    <shipTo>
-                    	". $shipping_params['firstName'] ."
-                        ". $shipping_params['lastName'] ."
-                        ". $shipping_params['company'] ."
-                        ". $shipping_params['address'] ."
-                        ". $shipping_params['city'] ."
-                        ". $shipping_params['state'] ."
-                        ". $shipping_params['zip'] ."
-                        ". $shipping_params['country'] ."
-                    </shipTo>
-				</subscription>
-		</ARBCreateSubscriptionRequest>";
-				
-		return $this->_handle_query(true);
+		$this->_api_method = 'ARBCreateSubscriptionRequest';
+		$this->_request = $this->_build_request($params);	
+		return $this->_handle_query();
 	}	
 
 	/**
@@ -344,38 +583,10 @@ class Authorize_Net extends CF_Payments
 	 */		
 	public function authorize_net_get_recurring_profile($params)
 	{	
-		$this->_request = "<?xml version='1.0' encoding='utf-8'?>
-			<ARBGetSubscriptionStatusRequest xmlns='AnetApi/xml/v1/schema/AnetApiSchema.xsd'>
-				<merchantAuthentication>
-					<name>". $this->_api_settings['x_login'] ."</name>
-					<transactionKey>". $this->_api_settings['x_tran_key'] ."</transactionKey>
-				</merchantAuthentication>
-				<subscriptionId>". $params['identifier'] ."</subscriptionId>
-			</ARBGetSubscriptionStatusRequest>";
-		
-		return $this->_handle_query(true);
+		$this->_api_method = 'ARBGetSubscriptionStatusRequest';
+		$this->_request = $this->_build_request($params);	
+		return $this->_handle_query();
 	}
-
-	/**
-	 * Cancel a recurring profile
-	 *
-	 * @param	array
-	 * @return	object
-	 */		
-	public function authorize_net_cancel_recurring_profile($params)
-	{	
-		$this->_request = "<?xml version='1.0' encoding='utf-8'?>
-			<ARBCancelSubscriptionRequest xmlns='AnetApi/xml/v1/schema/AnetApiSchema.xsd'>
-				<merchantAuthentication>
-					<name>". $this->_api_settings['x_login'] ."</name>
-					<transactionKey>". $this->_api_settings['x_tran_key'] ."</transactionKey>
-				</merchantAuthentication>
-				<subscriptionId>". $params['identifier'] ."</subscriptionId>
-			</ARBCancelSubscriptionRequest>		
-		";
-		
-		return $this->_handle_query(true);
-	}			
 
 	/**
 	 * Update a recurring payments profile
@@ -390,149 +601,23 @@ class Authorize_Net extends CF_Payments
 	 */		
 	public function authorize_net_update_recurring_profile($params)
 	{		
-		$trial_params = $this->build_nodes(
-			array(
-				'trialOccurrences' 	=>  $params['trial_billing_cycles'],
-				'trialAmount'		=> 	$params['trial_amt'],				
-			)
-		);
-		
-		$order_params = $this->build_nodes(
-			array(
-				'invoiceNumber'		=> 	$params['inv_num'],
-				'description'		=> 	$params['desc'],				
-			)
-		);
-		
-		$customer_params = $this->build_nodes(
-			array(
-				'id'				=> 	$params['identifier'],
-				'email'				=> 	$params['email'],
-				'phoneNumber'		=>	$params['phone'],
-				'faxNumber'			=>	$params['fax'],				
-			)
-		);
-		
-		$bill_params = $this->build_nodes(
-			array(
-				'firstName'			=>	$params['first_name'],
-				'lastName'			=>	$params['last_name'],
-				'company'			=>	$params['business_name'],
-				'address'			=>	$params['street'],
-				'city'				=>	$params['city'],
-				'state'				=>	$params['state'],
-				'zip'				=>	$params['postal_code'],
-				'country'			=>	$params['countrycode'],
-			)
-		);
-		
-		$shipping_params = $this->build_nodes(
-			array(
-				'firstName'			=>	$params['ship_to_first_name'],
-				'lastName'			=>	$params['ship_to_last_name'],
-				'company'			=>	$params['ship_to_company'],
-				'address'			=>	$params['ship_to_street'],
-				'city'				=>	$params['ship_to_city'],
-				'state'				=>	$params['ship_to_state'],
-				'zip'				=>	$params['ship_to_zip'],
-				'country'			=>	$params['ship_to_country']
-			)
-		);
-		
-		$interval_params = $this->build_nodes(
-			array(
-				'length'	=>	$params['billing_frequency'],
-				'unit'		=>	$params['billing_period']
-			)
-		);
-			
-		$this->_request =  "<?xml version='1.0' encoding='utf-8'?>
-        	<ARBUpdateSubscriptionRequest xmlns='AnetApi/xml/v1/schema/AnetApiSchema.xsd'>
-        		<merchantAuthentication>
-                	<name>" . $this->_api_settings['x_login'] . "</name>
-                    <transactionKey>" . $this->_api_settings['x_tran_key'] . "</transactionKey>
-                </merchantAuthentication>
-                <subscriptionId>" . $params['identifier'] ."</subscriptionId>
-                <subscription>
-                	<name>". $params['first_name'] . ' ' . $params['last_name'] ."</name>
-                    <paymentSchedule>";
-        
-        if(!empty($interval_params['length']) || !empty($interval_params['unit']))
-        {
-        	$this->_request .= "<interval>
-                    		".	$interval_params['length']	."
-                    		".	$interval_params['unit'] ."
-                        </interval>";
-        }
-        
-        if(!empty($params['profile_start_date']))
-        {
-        	$this->_request .= "<startDate>" . $params['profile_start_date'] . "</startDate>";
-        }
-        
-        if(!empty($params['total_billing_cycles']))
-        {
-        	$this->_request .=  "<totalOccurrences>". $params['total_billing_cycles'] . "</totalOccurrences>
-                            ". $trial_params['trialOccurrences'] ."";
-        
-        }
-        $this->_request .= "
-                    </paymentSchedule>";
-        
-        if(!empty($params['amt']))
-        {
-        	$this->_request .= "<amount>". $params['amt'] ."</amount>";
-        }
-                    
-        $this->_request .=   "". $trial_params['trialAmount'] ."";
-        
-        if(!empty($params['cc_number']) || !empty($params['exp_date']))
-        {
-        	$this->_request .= "
-                    <payment>
-                    	<creditCard>
-                        	<cardNumber>" . $params['cc_number'] . "</cardNumber>
-                            <expirationDate>" . $params['exp_date'] . "</expirationDate>
-                        </creditCard>
-                    </payment>        	
-        	";
-        }
-        
-        $this->_request .= "            <order>
-						". $order_params['invoiceNumber'] ."
-						". $order_params['description'] ."
-                    </order>
-                    <customer>
-                    	". $customer_params['id'] ."
-                        ". $customer_params['email']."
-                        ". $customer_params['phoneNumber']."
-                        ". $customer_params['faxNumber']."
-                    </customer>
-                    <billTo>
-                    	". $params['first_name'] . "
-                        " . $params['last_name'] . "
-                        ". $bill_params["company"] ."
-                        ". $bill_params["address"] ."
-                        ". $bill_params['city'] ."
-                        ". $bill_params['state'] ."
-                        ". $bill_params['zip'] ."
-                        ". $bill_params['country'] ."
-                    </billTo>
-                    <shipTo>
-                    	". $shipping_params['firstName'] ."
-                        ". $shipping_params['lastName'] ."
-                        ". $shipping_params['company'] ."
-                        ". $shipping_params['address'] ."
-                        ". $shipping_params['city'] ."
-                        ". $shipping_params['state'] ."
-                        ". $shipping_params['zip'] ."
-                        ". $shipping_params['country'] ."
-                    </shipTo>
-				</subscription>
-		</ARBUpdateSubscriptionRequest>";
-		
-		return $this->_handle_query(true);
+		$this->_api_method = 'ARBUpdateSubscriptionRequest';
+		$this->_request = $this->_build_request($params);		
+		return $this->_handle_query();
 	}
+	
+	/**
+	 * Cancel a recurring profile
+	 *
+	 * @param	array
+	 * @return	object
+	 */		
+	public function authorize_net_cancel_recurring_profile($params)
+	{	
+		$this->_api_method = 'ARBCancelSubscriptionRequest';
+		$this->_request = $this->_build_request($params);
+		return $this->_handle_query();
+	}			
 
 	/**
 	 * Build the query for the response and call the request function
@@ -542,23 +627,19 @@ class Authorize_Net extends CF_Payments
 	 * @param	string
 	 * @return	array
 	 */		
-	private function _handle_query($xml = false)
-	{
-		if(!$xml)
-		{
-			$settings = array_merge($this->_api_method, $this->_api_settings);
-			$this->_request = $this->_filter_values(array_merge($settings, $this->_request));	
-			$this->_request = http_build_query($this->_request);	
-		}
-		
+	private function _handle_query()
+	{	
+		//var_dump($this->_request);exit;
 		$this->_http_query = $this->_request;
 
 		include_once 'authorize_net/request.php';
 		include_once 'authorize_net/response.php';
 		
-		$request = Authorize_Net_Request::make_request($xml);
+		$request = Authorize_Net_Request::make_request();
+		$response_object = $this->payments->parse_xml($request);
+		$response = Authorize_Net_Response::parse_response($response_object);
 		
-		return Authorize_Net_Response::parse_response($this->_delimiter, $request, $xml);
+		return $response;
 	}		
 		
 }

@@ -14,7 +14,7 @@ class Paypal_PaymentsPro_Request extends Paypal_PaymentsPro
 	 * @param	array
 	 * @return	array
 	 */		
-	public function make_request($query)
+	public static function make_request($query)
 	{
 		// create a new cURL resource
 		$curl = curl_init();
