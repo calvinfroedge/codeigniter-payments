@@ -20,7 +20,7 @@ $config['required_params'] = array(
 		'street',
 		'state',
 		'city',
-		'countrycode',
+		'country',
 		'postal_code',
 		'amt'
 	),
@@ -31,7 +31,7 @@ $config['required_params'] = array(
 		'street',
 		'state',
 		'city',
-		'countrycode',
+		'country',
 		'postal_code',
 		'amt'	
 	),
