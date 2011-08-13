@@ -58,11 +58,6 @@ class Authorize_Net
 	private	$_default_params;
 	
 	/**
-	 * The delimiting character
-	*/
-	protected $_delimiter;
-	
-	/**
 	 * Constructor method
 	*/		
 	public function __construct($cf_payments)
@@ -76,7 +71,7 @@ class Authorize_Net
 			'tran_key'		=> $this->payments->ci->config->item('api_password'),
 			'xml_version'	=> '1.0',
 			'encoding'		=> 'utf-8',
-			'xml_schema'	=> 'AnetApi/xml/v1/schema/AnetApiSchema.xsd',
+			'xml_schema'	=> 'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="AnetApi/xml/v1/schema/AnetApiSchema.xsd"',
 			'email_customer'=> $this->payments->ci->config->item('email_customer'),
 			'test_mode'		=> $this->payments->ci->config->item('test_mode')
 		);
@@ -120,10 +115,10 @@ class Authorize_Net
 								
 		$request = $this->payments->build_xml_request(
 			$this->_api_settings['xml_version'],
-			$this->_api_settings['encoding'],		
+			$this->_api_settings['encoding'],
+			$nodes,					
 			$this->_api_method,
-			$this->_api_settings['xml_schema'],
-			$nodes
+			$this->_api_settings['xml_schema']
 		);
 		
 		//var_dump($request);exit;

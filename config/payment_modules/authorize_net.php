@@ -4,7 +4,6 @@ $config['api_username'] = "58Lct5BSN";
 $config['api_password'] = "6Wvtm62f543DSXpx";
 //Note: you can sign into the test interface at test.authorize.net
 $config['api_endpoint'] = "https://apitest.authorize.net/xml/v1/request.api";
-$config['delimiter'] = ",";
 $config['email_customer'] = TRUE;
 $config['test_mode'] = FALSE;
 

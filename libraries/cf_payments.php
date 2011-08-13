@@ -55,6 +55,11 @@ class CF_Payments
 	 * The default params for the method
 	*/	
 	private	$_default_params;
+
+	/**
+	 * The default params for the method
+	*/	
+	public $required_params;	
 		
 	/**
 	 * The constructor function.
@@ -289,19 +294,14 @@ class CF_Payments
 	{
 		//Ensure required params are present
 		$req = $this->ci->config->item('required_params');
+		$this->required_params = $req;
 		$req = $req[$this->payment_type];
 		
 		$missing = array();
 		
 		foreach($req as $k=>$v)
-		{
-			if(!array_key_exists($v, $params))
-			{
-				$missing[] = $this->_response_details['missing_'.$v];
-			}
-			
-	
-			if(empty($params[$v]) OR is_null($params[$v]) OR $params[$v] == ' ')
+		{	
+			if(!array_key_exists($v, $params) OR empty($params[$v]) OR is_null($params[$v]) OR $params[$v] == ' ')
 			{
 				$missing[] = $this->_response_details['missing_'.$v];
 			}
@@ -345,11 +345,12 @@ class CF_Payments
 	 */
 	public function filter_values($array)
 	{	
-		foreach($array as $key=>$value)
+		foreach($array as $k=>$v)
 		{
-			if($value === NULL)
+			$v = trim($v);
+			if(empty($v) AND !is_numeric($v))
 			{
-				unset($array[$key]);
+				unset($array[$k]);
 			}
 		}
 		return $array;
@@ -361,12 +362,31 @@ class CF_Payments
 	 * @param 	array	the structure for the xml
 	 * @return	string	a well-formed XML string
 	*/	
-	public function build_xml_request($xml_version, $character_encoding, $parent, $xml_schema, $xml_params)
+	public function build_xml_request($xml_version, $character_encoding, $xml_params, $parent = NULL, $xml_schema = NULL, $xml_extra = NULL)
 	{
 		$xml = '<?xml version="'.$xml_version.'" encoding="'.$character_encoding.'"?>';
-		$xml .= '<'.$parent.' xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="'.$xml_schema.'">';
+
+		if(!is_null($xml_extra))
+		{
+			$xml .= '<?'.$xml_extra.'?>';
+		}
+		
+		if(!is_null($parent) AND is_null($xml_schema))
+		{
+			$xml .= '<'.$parent.'>';
+		}
+				
+		if(!is_null($parent) AND !is_null($xml_schema))
+		{
+			$xml .= '<'.$parent.' '.$xml_schema.'">';
+		}
+		
 		$xml .= $this->build_nodes($xml_params);
-		$xml .= '</'.$parent.'>';
+		
+		if(!is_null($parent))
+		{
+			$xml .= '</'.$parent.'>';
+		}
 		
 		return $xml;
 	}
@@ -383,7 +403,7 @@ class CF_Payments
 		$dont_wrap = FALSE;
 		
 		foreach($params as $k=>$v)
-		{	
+		{		
 			if(is_bool($v) AND $v === TRUE)
 			{
 				$v = 'true';
@@ -394,7 +414,7 @@ class CF_Payments
 				$v = 'false';
 			}
 			
-			if(empty($v))
+			if(empty($v) AND $v != '0')
 			{
 				unset($k);
 				continue;
@@ -436,11 +456,23 @@ class CF_Payments
 			}
 
 			if(!empty($node_contents) AND $dont_wrap === FALSE)
-			{
+			{		
 				$string .= '<'.$node_name.'>';
 				$string .= $node_contents;
 				$string .= '</'.$node_name.'>';
-			}			
+			}	
+			
+			if($node_contents === '0' AND $dont_wrap === TRUE)
+			{
+				$string .= $node_contents;			
+			}
+
+			if($node_contents === '0' AND $dont_wrap === FALSE)
+			{
+				$string .= '<'.$node_name.'>';
+				$string .= $node_contents;
+				$string .= '</'.$node_name.'>';			
+			}					
 		}
 		return $string;
 	}

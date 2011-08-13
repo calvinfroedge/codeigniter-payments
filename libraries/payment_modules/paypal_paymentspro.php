@@ -327,7 +327,7 @@ class PayPal_PaymentsPro
 			'EMAIL'					=>	$params['email'],
 			'PAYERID'				=>	$params['identifier'],
 			'PAYERSTATUS'			=>	$params['payer_status'],
-			'country'			=>	$params['country_code'],
+			'country'				=>	$params['country_code'],
 			'BUSINESS'				=>	$params['business_name'],
 			'SALUTATION'			=>	$params['salutation'],
 			'FIRSTNAME'				=>	$params['first_name'],
