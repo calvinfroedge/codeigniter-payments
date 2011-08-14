@@ -35,9 +35,9 @@ class QuickBooksMS
 	/**
 	 * Constructor method
 	*/		
-	public function __construct($cf_payments)
+	public function __construct($payments)
 	{
-		$this->payments = $cf_payments;				
+		$this->payments = $payments;				
 		$this->_default_params = $this->payments->ci->config->item('method_params');
 		$this->_api_endpoint = $this->payments->ci->config->item('api_endpoint');	
 		$this->_api_settings = array(
