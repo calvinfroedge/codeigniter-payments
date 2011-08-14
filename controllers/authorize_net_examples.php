@@ -4,12 +4,12 @@ class Authorize_Net_Examples extends CI_Controller {
 
 	public function index()
 	{
-		$this->load->spark('cf_payments/1.0.0/');
+		$this->load->spark('payments/1.0.0/');
 		//*****AUTHORIZE.NET******//
 		
 		//MAKE A ONE OFF PAYMENT
 		/*/
-		var_dump($this->cf_payments->oneoff_payment('authorize_net', 
+		var_dump($this->payments->oneoff_payment('authorize_net', 
 				array(
 					'cc_type'			=>	'Visa',	
 					'cc_number'			=>	'4997662409617853', 
@@ -21,7 +21,7 @@ class Authorize_Net_Examples extends CI_Controller {
 		/*/
 		//AUTHORIZE A ONE OFF PAYMENT	
 		/*/	
-		var_dump($this->cf_payments->authorize_payment('authorize_net', 
+		var_dump($this->payments->authorize_payment('authorize_net', 
 				array(
 					'cc_type'			=>	'Visa',	
 					'cc_number'			=>	'4997662409617853', 
@@ -33,7 +33,7 @@ class Authorize_Net_Examples extends CI_Controller {
 		/*/
 		//CAPTURE A PREVIOUSLY AUTHORIZED PAYMENT
 		/*/
-		var_dump($this->cf_payments->capture_payment('authorize_net',
+		var_dump($this->payments->capture_payment('authorize_net',
 				array(
 					'identifier'			=>	'2161894134'
 				)
@@ -42,7 +42,7 @@ class Authorize_Net_Examples extends CI_Controller {
 		/*/
 		//VOID A PAYMENT
 		/*/
-		var_dump($this->cf_payments->void_payment('authorize_net',
+		var_dump($this->payments->void_payment('authorize_net',
 				array(
 					'identifier'			=>	'2161908334'
 				)
@@ -51,7 +51,7 @@ class Authorize_Net_Examples extends CI_Controller {
 		/*/
 		//REFUND A PAYMENT
 		/*/
-		var_dump($this->cf_payments->refund_payment('authorize_net', 
+		var_dump($this->payments->refund_payment('authorize_net', 
 				array(
 					'identifier'			=>	'2161908685',
 					'cc_number'				=>	'7853', //Can be a full number or last 4 digits.  Note that storing full card info is usually not a good idea.
@@ -63,7 +63,7 @@ class Authorize_Net_Examples extends CI_Controller {
 		/*/	
 		//GET A PARTICULAR TRANSACTION'S DETAILS
 		/*/
-		var_dump($this->cf_payments->get_transaction_details('authorize_net', 
+		var_dump($this->payments->get_transaction_details('authorize_net', 
 				array(
 					'identifier'			=>	'2161910058'
 				)		
@@ -72,7 +72,7 @@ class Authorize_Net_Examples extends CI_Controller {
 		/*/					
 		//MAKE A RECURRING PAYMENT
 		/*/
-		var_dump($this->cf_payments->recurring_payment('authorize_net',
+		var_dump($this->payments->recurring_payment('authorize_net',
 				array(
 				'profile_start_date'		=>	date("Y-m-d"),  
 					'profile_reference'			=>	'',
@@ -115,11 +115,11 @@ class Authorize_Net_Examples extends CI_Controller {
 		/*/
 		
 		/*/Get a Recurring Profile
-		var_dump($this->cf_payments->get_recurring_profile('authorize_net', array('identifier' => '1135697')));
+		var_dump($this->payments->get_recurring_profile('authorize_net', array('identifier' => '1135697')));
 		/*/
 		
 		/*/Update a Recurring Profile
-		var_dump($this->cf_payments->update_recurring_profile('authorize_net', 
+		var_dump($this->payments->update_recurring_profile('authorize_net', 
 				array(
 					'identifier' => '1135697',
 					'cc_number'	=>	'4997662409617853',
@@ -130,7 +130,7 @@ class Authorize_Net_Examples extends CI_Controller {
 		/*/
 		
 		/*/Cancel a recurring profile
-		var_dump($this->cf_payments->cancel_recurring_profile('authorize_net', 
+		var_dump($this->payments->cancel_recurring_profile('authorize_net', 
 				array(
 					'identifier' => '1135697'
 				)

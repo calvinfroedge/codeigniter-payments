@@ -4,12 +4,12 @@ class Paypal_PaymentsPro_Examples extends CI_Controller {
 
 	public function index()
 	{
-		$this->load->spark('cf_payments/1.0.0/');
+		$this->load->spark('payments/1.0.0/');
 		
 		//*****PAYPAL******//
 		/*
 		//MAKE A ONE OFF PAYMENT
-		var_dump($this->cf_payments->oneoff_payment('paypal_paymentspro', 
+		var_dump($this->payments->oneoff_payment('paypal_paymentspro', 
 				array(
 					'ip_address'		=>	'173.20.117.195',	//REQUIRED.  IP address of purchaser
 					'cc_type'			=>	'Visa',	//REQUIRED.  Visa, MasterCard, Discover, Amex
@@ -28,7 +28,7 @@ class Paypal_PaymentsPro_Examples extends CI_Controller {
 		);*/
 		/*
 		//AUTHORIZE A ONE OFF PAYMENT
-		var_dump($this->cf_payments->authorize_payment('paypal_paymentspro', 
+		var_dump($this->payments->authorize_payment('paypal_paymentspro', 
 					array(
 					'ip_address'		=>	'173.20.117.195',	//REQUIRED.  IP address of purchaser
 					'cc_type'			=>	'Visa',	//REQUIRED.  Visa, MasterCard, Discover, Amex
@@ -47,7 +47,7 @@ class Paypal_PaymentsPro_Examples extends CI_Controller {
 		);*/
 		/*
 		//AUTHORIZE A PAYMENT CAPTURE
-		var_dump($this->cf_payments->capture_payment('paypal_paymentspro', 
+		var_dump($this->payments->capture_payment('paypal_paymentspro', 
 				array(
 					'identifier'			=>	'8EX70126EC568035J',  //Required. Unique identifier for the transaction, generated from a previous authorization.
 					'amt'					=>	'25.00', 
@@ -64,7 +64,7 @@ class Paypal_PaymentsPro_Examples extends CI_Controller {
 		*/
 		/*
 		//VOID A PAYMENT
-		var_dump($this->cf_payments->void_payment('paypal_paymentspro', 
+		var_dump($this->payments->void_payment('paypal_paymentspro', 
 				array(
 					'identifier'	=>	'8EX70126EC568035J', //Required. Unique identifier for the transaction, generated from a previous authorization.
 					'note'			=>	'This is a note',
@@ -73,7 +73,7 @@ class Paypal_PaymentsPro_Examples extends CI_Controller {
 		);*/
 		/*
 		//GET A TRANSACTION'S DETAILS
-		var_dump($this->cf_payments->get_transaction_details('paypal_paymentspro', 
+		var_dump($this->payments->get_transaction_details('paypal_paymentspro', 
 				array(
 					'identifier'	=>	'3EH39694NE651043T',  //Required.  Unique identifier to search for
 				)
@@ -81,7 +81,7 @@ class Paypal_PaymentsPro_Examples extends CI_Controller {
 		);*/
 		/*
 		//CHANGE A TRANSACTION'S STATUS
-		var_dump($this->cf_payments->change_transaction_status('paypal_paymentspro', 
+		var_dump($this->payments->change_transaction_status('paypal_paymentspro', 
 				array(
 					'identifier'	=>	'3EH39694NE651043T',
 					'action'		=>	'Accept'
@@ -90,7 +90,7 @@ class Paypal_PaymentsPro_Examples extends CI_Controller {
 		)*/;
 		/*
 		//REFUND A PAYMENT
-		var_dump($this->cf_payments->refund_payment('paypal_paymentspro', 
+		var_dump($this->payments->refund_payment('paypal_paymentspro', 
 				array(
 					'identifier'			=>	'3EH39694NE651043T',
 					'inv_num'				=>	'',
@@ -104,7 +104,7 @@ class Paypal_PaymentsPro_Examples extends CI_Controller {
 		*/
 		/*
 		//Search Transactions
-		var_dump($this->cf_payments->search_transactions('paypal_paymentspro', 
+		var_dump($this->payments->search_transactions('paypal_paymentspro', 
 				array(
 					'start_date'			=>	'2011-07-02T00:24:59+00:00',	//Date to search from.
 					'end_date'				=>	'',	//Date to search to
@@ -130,7 +130,7 @@ class Paypal_PaymentsPro_Examples extends CI_Controller {
 		*/
 		/*
 		//Make a Recurring Payment
-		var_dump($this->cf_payments->recurring_payment('paypal_paymentspro', 
+		var_dump($this->payments->recurring_payment('paypal_paymentspro', 
 				array(
 					'subscriber_name'			=>	'',
 					'profile_start_date'		=>	'2011-07-06T00:24:59+00:00',  //Required.  The subscription start date.
@@ -186,7 +186,7 @@ class Paypal_PaymentsPro_Examples extends CI_Controller {
 		*/
 		//GET A RECURRING PROFILE
 		/*
-		var_dump($this->cf_payments->get_recurring_profile('paypal_paymentspro', 
+		var_dump($this->payments->get_recurring_profile('paypal_paymentspro', 
 				array(
 					'identifier'	=> 'I-CDSFBDH61F0D'
 				)
@@ -195,7 +195,7 @@ class Paypal_PaymentsPro_Examples extends CI_Controller {
 		*/
 		//SUSPEND A RECURRING PROFILE
 		/*
-		var_dump($this->cf_payments->suspend_recurring_profile('paypal_paymentspro',
+		var_dump($this->payments->suspend_recurring_profile('paypal_paymentspro',
 				array(
 					'identifier'	=> 'I-CDSFBDH61F0D',
 					'note'			=> 'This is just a note'
@@ -205,7 +205,7 @@ class Paypal_PaymentsPro_Examples extends CI_Controller {
 		*/
 		/*
 		//ACTIVATE A RECURRING PROFILE THAT HAS BEEN SUSPENDED
-		var_dump($this->cf_payments->activate_recurring_profile('paypal_paymentspro', 
+		var_dump($this->payments->activate_recurring_profile('paypal_paymentspro', 
 				array(
 					'identifier'	=> 'I-CDSFBDH61F0D',
 					'note'			=> 'This is just a note'
@@ -215,7 +215,7 @@ class Paypal_PaymentsPro_Examples extends CI_Controller {
 		*/
 		//CANCEL A RECURRING PROFILE
 		/*
-		var_dump($this->cf_payments->cancel_recurring_profile('paypal_paymentspro', 
+		var_dump($this->payments->cancel_recurring_profile('paypal_paymentspro', 
 				array(
 					'identifier'	=> 'I-CDSFBDH61F0D',
 					'note'			=> 'This is just a note'
@@ -225,7 +225,7 @@ class Paypal_PaymentsPro_Examples extends CI_Controller {
 		*/
 		/*
 		//BILL AN OUTSTANDING AMOUNT ON A RECURRING PROFILE
-		var_dump($this->cf_payments->recurring_bill_outstanding('paypal_paymentspro', 
+		var_dump($this->payments->recurring_bill_outstanding('paypal_paymentspro', 
 				array(
 					'identifier'	=> 'I-CDSFBDH61F0D',
 					'amt'			=>	'',
@@ -236,7 +236,7 @@ class Paypal_PaymentsPro_Examples extends CI_Controller {
 		*/	
 		/*
 		//UPDATE A RECURRING PROFILE	
-		var_dump($this->cf_payments->update_recurring_profile('paypal_paymentspro', 
+		var_dump($this->payments->update_recurring_profile('paypal_paymentspro', 
 				array(
 					'identifier'				=>	'I-LDEK42D9UYL7',	//Required.
 					'note'						=>	'',	
