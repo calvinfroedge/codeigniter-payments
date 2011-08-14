@@ -360,7 +360,7 @@ class Authorize_Net
 
 		if(isset($params['phone']))
 		{
-			$bill_to['phoneNumber'] = $params['fax'];
+			$bill_to['phoneNumber'] = $params['phone'];
 		}	
 
 		if(isset($params['fax']))

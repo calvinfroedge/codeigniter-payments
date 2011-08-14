@@ -1,6 +1,6 @@
 Load spark like this:
 
-$this->load->spark('cf_payments/1.0.0/');
+$this->load->spark('payments/0.0.1/');
 
 You can find examples for PayPal PaymentsPro in:
 

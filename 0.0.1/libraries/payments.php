@@ -14,7 +14,7 @@
 * @link https://github.com/calvinfroedge/Codeigniter-Payments-Spark
 */
 
-class CF_Payments
+class Payments
 {
 	/**
 	 * The CodeIgniter instance
@@ -107,14 +107,7 @@ class CF_Payments
 	private function _check_method_supported($method)
 	{
 		$supported_methods = $this->ci->config->item('supported_methods');
-		if(in_array($method, $supported_methods))
-		{
-			return true;
-		}
-		else
-		{
-			return false;		
-		}
+		return in_array($method, $supported_methods);
 	}
 
 	/**
@@ -139,7 +132,7 @@ class CF_Payments
 		}
 		else
 		{
-			$this->ci->load->config('payment_modules/'.$payment_module);
+			$this->ci->load->config('payments/'.$payment_module);
 			$this->payment_type = $payment_type;	
 			$valid_inputs = $this->_check_inputs($payment_module, $params);
 			if($valid_inputs === TRUE)
@@ -275,7 +268,7 @@ class CF_Payments
 			}
 		}
 		
-		if($invalids > 0)
+		if($invalids)
 		{
 			return FALSE;
 		}
