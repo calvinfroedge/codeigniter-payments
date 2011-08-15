@@ -371,7 +371,7 @@ class Payments
 				
 		if(!is_null($parent) AND !is_null($xml_schema))
 		{
-			$xml .= '<'.$parent.' '.$xml_schema.'">';
+			$xml .= '<'.$parent.' '.$xml_schema.'>';
 		}
 		
 		$xml .= $this->build_nodes($xml_params);

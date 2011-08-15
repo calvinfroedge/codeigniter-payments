@@ -624,12 +624,11 @@ class Authorize_Net
 	 */		
 	private function _handle_query()
 	{	
-		//var_dump($this->_request);exit;
 		$this->_http_query = $this->_request;
 
 		include_once 'authorize_net/request.php';
 		include_once 'authorize_net/response.php';
-		
+	
 		$request = Authorize_Net_Request::make_request();
 		$response_object = $this->payments->parse_xml($request);
 		$response = Authorize_Net_Response::parse_response($response_object);

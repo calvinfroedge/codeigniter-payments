@@ -10,6 +10,7 @@ class Authorize_Net_Request extends Authorize_Net
 	
 	public function make_request()
 	{
+		var_dump($this->_http_query);exit;
 		// create a new cURL resource
 		$curl = curl_init();
 		
