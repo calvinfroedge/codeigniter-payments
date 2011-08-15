@@ -4,7 +4,7 @@ class Authorize_Net_Examples extends CI_Controller {
 
 	public function index()
 	{
-		$this->load->spark('payments/1.0.0/');
+		$this->load->spark('codeigniter-payments/0.0.1/');
 		//*****AUTHORIZE.NET******//
 		
 		//MAKE A ONE OFF PAYMENT
@@ -137,5 +137,6 @@ class Authorize_Net_Examples extends CI_Controller {
 			)
 		);
 		/*/
+
 	}
 }

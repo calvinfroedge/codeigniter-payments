@@ -123,14 +123,49 @@ class Eway
 		//var_dump($this->_request);exit;
 		$this->_http_query = $this->_request;
 
-		include_once 'eway/request.php';
-		//include_once 'authorize_net/response.php';
+		$response_object = $this->payments->gateway_request($this->_api_endpoint, $this->_http_query);	
 		
-		$request = Eway_Request::make_request();
-		$response_object = $this->payments->parse_xml($request);
-		var_dump($response_object);
-		//$response = Authorize_Net_Response::parse_response($response_object);
+		$response = $this->_parse_response($response_object);
 		
-		//return $response;
+		return $response;
 	}		
+
+	/**
+	 * Parses the XML response from the gateway and returns success or failure, along with details
+	 *
+	 * @param	object
+	 * @return	object
+	 */		
+	private function _parse_response($response)
+	{
+		$details = (object) array();
+
+		$as_array = $this->payments->arrayize_object($response);
+		
+		if($as_array['ewayTrxnStatus'] == 'True')
+		{
+			$details->identifier = $as_array['ewayTrxnNumber'];
+			
+			return $this->payments->return_response(
+				'Success',
+				$this->payments->payment_type.'_success',
+				'gateway_response',
+				$details
+			);
+		}
+		else
+		{
+			$details->reason = $as_array['ewayTrxnError'];
+			$details->gateway_response = $as_array;
+			
+			return $this->payments->return_response(
+				'Failure',
+				$this->payments->payment_type.'_gateway_failure',
+				'gateway_response',
+				$details
+			);			
+		}
+		
+		return $as_array;		
+	}
 }

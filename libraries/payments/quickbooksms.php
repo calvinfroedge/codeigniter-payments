@@ -234,15 +234,94 @@ class QuickBooksMS
 	{	
 		$this->_http_query = $this->_request;
 		
-		include_once 'quickbooksms/request.php';
-		include_once 'quickbooksms/response.php';
-		
-		$request = QuickBooksMS_Request::make_request();
-		//var_dump($request);exit;
-		$response_object = $this->payments->parse_xml($request);
-		$response = QuickBooksMS_Response::parse_response($response_object);
+		$response_object = $this->payments->gateway_request($this->_api_endpoint, $this->_http_query, "Content-Type: application/x-qbmsxml");	
+		$response = $this->_parse_response($response_object);
 		
 		return $response;
 	}		
+
+	/**
+	 * Parse the response from the server
+	 *
+	 * @param	array
+	 * @return	object
+	 */		
+	private function _parse_response($xml)
+	{	
+		$details = (object) array();
+
+		$as_array = $this->payments->arrayize_object($xml);
+		
+		$signon = $as_array['SignonMsgsRs']['SignonDesktopRs'];
+		$response = $as_array['QBMSXMLMsgsRs'];
+		$result = '';
+		$message = '';
+		$identifier = '';
+		
+		if(isset($response['CustomerCreditCardChargeRs']))
+		{
+			$result = $response['CustomerCreditCardChargeRs']['@attributes']['statusCode'];
+			$message = $response['CustomerCreditCardChargeRs']['@attributes']['statusMessage'];	
+			$identifier = $response['CustomerCreditCardChargeRs']['CreditCardTransID'];	
+		}
+
+		if(isset($response['CustomerCreditCardAuthRs']))
+		{
+			$result = $response['CustomerCreditCardAuthRs']['@attributes']['statusCode'];
+			$message = $response['CustomerCreditCardAuthRs']['@attributes']['statusMessage'];	
+			$identifier = $response['CustomerCreditCardAuthRs']['CreditCardTransID'];	
+		}
+	
+		if(isset($response['CustomerCreditCardCaptureRs']))
+		{
+			$result = $response['CustomerCreditCardCaptureRs']['@attributes']['statusCode'];
+			$message = $response['CustomerCreditCardCaptureRs']['@attributes']['statusMessage'];	
+			$identifier = $response['CustomerCreditCardCaptureRs']['CreditCardTransID'];	
+		}
+		
+		if(isset($response['CustomerCreditCardTxnVoidRs']))
+		{
+			$result = $response['CustomerCreditCardTxnVoidRs']['@attributes']['statusCode'];
+			$message = $response['CustomerCreditCardTxnVoidRs']['@attributes']['statusMessage'];	
+			$identifier = $response['CustomerCreditCardTxnVoidRs']['CreditCardTransID'];		
+		}
+		
+		if(isset($response['CustomerCreditCardTxnVoidOrRefundRs']))
+		{
+			$result = $response['CustomerCreditCardTxnVoidOrRefundRs']['@attributes']['statusCode'];
+			$message = $response['CustomerCreditCardTxnVoidOrRefundRs']['@attributes']['statusMessage'];
+			if(isset($response['CustomerCreditCardTxnVoidOrRefundRs']['CreditCardTransID']))
+			{	
+				$identifier = $response['CustomerCreditCardTxnVoidOrRefundRs']['CreditCardTransID'];		
+			}
+		}		
+			
+		$details->gateway_response = $as_array;
+		
+		if($result === '0')
+		{ //Transaction was successful
+			$details->identifier = $identifier;
+			
+			$details->timestamp = $signon['ServerDateTime'];
+			
+			return $this->payments->return_response(
+				'Success',
+				$this->payments->payment_type.'_success',
+				'gateway_response',
+				$details
+			);			
+		}
+		else
+		{ //Transaction failed
+			$details->reason = $message;
+
+			return $this->payments->return_response(
+				'Failure',
+				$this->payments->payment_type.'_gateway_failure',
+				'gateway_response',
+				$details
+			);				
+		}
+	}
 		
 }

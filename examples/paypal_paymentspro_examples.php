@@ -4,30 +4,31 @@ class Paypal_PaymentsPro_Examples extends CI_Controller {
 
 	public function index()
 	{
-		$this->load->spark('payments/1.0.0/');
+		$this->load->spark('codeigniter-payments/0.0.1');
 		
 		//*****PAYPAL******//
-		/*
 		//MAKE A ONE OFF PAYMENT
+		/*/
 		var_dump($this->payments->oneoff_payment('paypal_paymentspro', 
 				array(
-					'ip_address'		=>	'173.20.117.195',	//REQUIRED.  IP address of purchaser
-					'cc_type'			=>	'Visa',	//REQUIRED.  Visa, MasterCard, Discover, Amex
-					'cc_number'			=>	'4997662409617853', //REQUIRED.  Credit card number
-					'cc_exp'			=>	'022016', //REQUIRED.  Must be formatted MMYYYY
-					'cc_code'			=>	'203', //RREQUIRED.  3 or 4 digit cvv code
-					'email'				=>	'calvinfroedge@gmail.com', //REQUIRED.  email associated with account being billed
-					'street'			=>	'181 Rowland Lane', //REQUIRED.  street address of the purchaser
-					'city'				=>	'Tompkinsville', //REQUIRED.  city of the purchaser
-					'state'				=>	'KY', //REQUIRED.  state of the purchaser
-					'countrycode'		=>	'US', //REQUIRED.  country of the purchaser
-					'postal_code'				=>	'42167', //REQUIRED.  zip code of the purchaser
-					'amt'				=>	'25.00', //REQUIRED.  purchase amount
+					'ip_address'		=>	'',
+					'cc_type'			=>	'Visa',	
+					'cc_number'			=>	'4997662409617853', 
+					'cc_exp'			=>	'022016', 
+					'cc_code'			=>	'203', 
+					'email'				=>	'calvinfroedge@gmail.com', 
+					'street'			=>	'181 Rowland Lane', 
+					'city'				=>	'Tompkinsville', 
+					'state'				=>	'KY', 
+					'country'			=>	'US', 
+					'postal_code'		=>	'42167', 
+					'amt'				=>	'25.00', 
 				)
 			)
-		);*/
-		/*
+		);
+		/*/
 		//AUTHORIZE A ONE OFF PAYMENT
+		/*
 		var_dump($this->payments->authorize_payment('paypal_paymentspro', 
 					array(
 					'ip_address'		=>	'173.20.117.195',	//REQUIRED.  IP address of purchaser
@@ -39,20 +40,20 @@ class Paypal_PaymentsPro_Examples extends CI_Controller {
 					'street'			=>	'181 Rowland Lane', //REQUIRED.  street address of the purchaser
 					'city'				=>	'Tompkinsville', //REQUIRED.  city of the purchaser
 					'state'				=>	'KY', //REQUIRED.  state of the purchaser
-					'countrycode'		=>	'US', //REQUIRED.  country of the purchaser
+					'country'		=>	'US', //REQUIRED.  country of the purchaser
 					'postal_code'				=>	'42167', //REQUIRED.  zip code of the purchaser
 					'amt'				=>	'25.00', //REQUIRED.  purchase amount
 				)	
 			)
-		);*/
+		);
+		*/
+		//CAPTURE A PAYMENT
 		/*
-		//AUTHORIZE A PAYMENT CAPTURE
 		var_dump($this->payments->capture_payment('paypal_paymentspro', 
 				array(
-					'identifier'			=>	'8EX70126EC568035J',  //Required. Unique identifier for the transaction, generated from a previous authorization.
+					'identifier'			=>	'5C8882292W615170E',  //Required. Unique identifier for the transaction, generated from a previous authorization.
 					'amt'					=>	'25.00', 
 					'final'					=>	TRUE,	//Whether or not this is the final charge.
-					'inv_num'				=>	'100',	//Matches some invoice in your own system.
 					'note'					=>	'This is a note',
 					'cc_statement_descrip'	=>	'A description for the credit card statement',
 					'cc_type'				=>	'Visa',	//REQUIRED.  Visa, MasterCard, Discover, Amex
@@ -62,23 +63,27 @@ class Paypal_PaymentsPro_Examples extends CI_Controller {
 			)
 		);
 		*/
-		/*
 		//VOID A PAYMENT
+		/*
 		var_dump($this->payments->void_payment('paypal_paymentspro', 
 				array(
-					'identifier'	=>	'8EX70126EC568035J', //Required. Unique identifier for the transaction, generated from a previous authorization.
+					'identifier'	=>	'2WT4762305491843J', //Required. Unique identifier for the transaction, generated from a previous authorization.
 					'note'			=>	'This is a note',
 				)
 			)
-		);*/
+		);
+		*/
+		
 		/*
 		//GET A TRANSACTION'S DETAILS
 		var_dump($this->payments->get_transaction_details('paypal_paymentspro', 
 				array(
-					'identifier'	=>	'3EH39694NE651043T',  //Required.  Unique identifier to search for
+					'identifier'	=>	'3J900204DU694992R',  //Required.  Unique identifier to search for
 				)
 			)
-		);*/
+		);
+		*/
+		
 		/*
 		//CHANGE A TRANSACTION'S STATUS
 		var_dump($this->payments->change_transaction_status('paypal_paymentspro', 
@@ -87,12 +92,13 @@ class Paypal_PaymentsPro_Examples extends CI_Controller {
 					'action'		=>	'Accept'
 				)
 			)
-		)*/;
+		);
+		*/
 		/*
 		//REFUND A PAYMENT
 		var_dump($this->payments->refund_payment('paypal_paymentspro', 
 				array(
-					'identifier'			=>	'3EH39694NE651043T',
+					'identifier'			=>	'3J900204DU694992R',
 					'inv_num'				=>	'',
 					'refund_type'			=>	'Full', //Can be Full or Partial
 					'amt'					=>	'',  //Do not set amount if refund type is Full
@@ -106,7 +112,7 @@ class Paypal_PaymentsPro_Examples extends CI_Controller {
 		//Search Transactions
 		var_dump($this->payments->search_transactions('paypal_paymentspro', 
 				array(
-					'start_date'			=>	'2011-07-02T00:24:59+00:00',	//Date to search from.
+					'start_date'			=>	'2011-08-02T00:24:59+00:00',	//Date to search from.
 					'end_date'				=>	'',	//Date to search to
 					'email'					=>	'',	//Email used by purchaser
 					'receiver'				=>	'',	//Identifier of receiver
@@ -128,12 +134,11 @@ class Paypal_PaymentsPro_Examples extends CI_Controller {
 			)
 		);
 		*/
-		/*
-		//Make a Recurring Payment
+		/*/
+		//Create a Recurring Profile
 		var_dump($this->payments->recurring_payment('paypal_paymentspro', 
 				array(
-					'subscriber_name'			=>	'',
-					'profile_start_date'		=>	'2011-07-06T00:24:59+00:00',  //Required.  The subscription start date.
+					'profile_start_date'		=>	'2011-08-06T00:24:59+00:00',  //Required.  The subscription start date.
 					'profile_reference'			=>	'',
 					'desc'						=>	'Chill out.  Just a test!',	//Required.  A description for the recurring bill.
 					'max_failed_payments'		=>	'',
@@ -150,18 +155,19 @@ class Paypal_PaymentsPro_Examples extends CI_Controller {
 					'tax_amt'					=>	'',
 					'initial_amt'				=>	'',	//billed immediately upon profile creationg
 					'failed_init_action'		=>	'',	//What to do if the initial bill failes.  Continue or Cancel.
-					'ship_to_name'				=>	'',
+					'ship_to_first_name'		=>	'',
+					'ship_to_last_name'			=>	'',
 					'ship_to_street'			=>	'',
 					'ship_to_street2'			=>	'',
 					'ship_to_city'				=>	'',
 					'ship_to_state'				=>	'',
 					'ship_to_zip'				=>	'',
 					'ship_to_country'			=>	'',
-					'ship_to_phone_num'			=>	'',
+					'phone'			=>	'',
 					'cc_type'					=>	'Visa',	//Required.  Credit card type.
 					'cc_number'					=>	'4997662409617853',	//Required.  Credit card number.
 					'exp_date'					=>	'022016',	//Required.  Credit card expiration date.
-					'cc_code'					=>	'203',	//Required.  Credit Card CVV code.
+					'cc_code'					=>	'',	//Required.  Credit Card CVV code.
 					'start_date'				=>	'',	
 					'issue_number'				=>	'',
 					'email'						=>	'',
@@ -179,16 +185,16 @@ class Paypal_PaymentsPro_Examples extends CI_Controller {
 					'city'						=>	'Tompkinsville',	//Required.  Buyer's city.
 					'state'						=>	'KY',	//Required.  Buyer's state or province.
 					'postal_code'				=>	'42167',	//Required.  Buyer's postal code.
-					'ship_to_phone_num'			=>	'(270) 487 9560',		
+					'phone'			=>	'',		
 				)
 			)
 		);
-		*/
+		/*/
 		//GET A RECURRING PROFILE
 		/*
 		var_dump($this->payments->get_recurring_profile('paypal_paymentspro', 
 				array(
-					'identifier'	=> 'I-CDSFBDH61F0D'
+					'identifier'	=> 'I-9DGMTBN36EFD'
 				)
 			)
 		);
@@ -197,7 +203,7 @@ class Paypal_PaymentsPro_Examples extends CI_Controller {
 		/*
 		var_dump($this->payments->suspend_recurring_profile('paypal_paymentspro',
 				array(
-					'identifier'	=> 'I-CDSFBDH61F0D',
+					'identifier'	=> 'I-9DGMTBN36EFD',
 					'note'			=> 'This is just a note'
 				)
 			)
@@ -207,7 +213,7 @@ class Paypal_PaymentsPro_Examples extends CI_Controller {
 		//ACTIVATE A RECURRING PROFILE THAT HAS BEEN SUSPENDED
 		var_dump($this->payments->activate_recurring_profile('paypal_paymentspro', 
 				array(
-					'identifier'	=> 'I-CDSFBDH61F0D',
+					'identifier'	=> 'I-9DGMTBN36EFD',
 					'note'			=> 'This is just a note'
 				)
 			)
@@ -217,12 +223,12 @@ class Paypal_PaymentsPro_Examples extends CI_Controller {
 		/*
 		var_dump($this->payments->cancel_recurring_profile('paypal_paymentspro', 
 				array(
-					'identifier'	=> 'I-CDSFBDH61F0D',
+					'identifier'	=> 'I-9DGMTBN36EFD',
 					'note'			=> 'This is just a note'
 				)		
 			)
 		);
-		*/
+		/
 		/*
 		//BILL AN OUTSTANDING AMOUNT ON A RECURRING PROFILE
 		var_dump($this->payments->recurring_bill_outstanding('paypal_paymentspro', 
@@ -280,11 +286,12 @@ class Paypal_PaymentsPro_Examples extends CI_Controller {
 					'state'						=>	'KY',	//Required.  Buyer's state or province.
 					'country_code'				=>	'',
 					'postal_code'				=>	'42167',	//Required.  Buyer's postal code.
-					'ship_to_phone_num'			=>	'(270) 487 9560',	
+					'phone'						=>	'(270) 487 9560',	
 				)	
 			)
 		);
 		*/
+
 
 	}
 }

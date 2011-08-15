@@ -6,7 +6,27 @@ class Psigate
 	 * The use who wil make the call to the paypal gateway
 	*/
 	private $_api_user;
-	
+
+	/**
+	 * The default parameters for a particular method
+	*/
+	private $_default_params;	
+
+	/**
+	 * The endpoint for a particular transaction
+	*/
+	private $_api_endpoint;	
+
+	/**
+	 * The settings for a particular transaction
+	*/
+	private $_api_settings;	
+
+	/**
+	 * The api method to use
+	*/
+	private $_api_method;	
+				
 	/**
 	 * Constructor method
 	*/		
@@ -333,14 +353,94 @@ class Psigate
 	{	
 		//var_dump($this->_request);exit;
 		$this->_http_query = $this->_request;
-
-		include_once 'psigate/request.php';
-		include_once 'psigate/response.php';
 		
-		$request = Psigate_Request::make_request();
-		$response_object = $this->payments->parse_xml($request);
-		$response = Psigate_Response::parse_response($response_object);
+		$response_object = $this->payments->gateway_request($this->_api_endpoint, $this->_http_query);	
+		$response = $this->_parse_response($response_object);
 		
 		return $response;
-	}			
+	}	
+
+	/**
+	 * Parse the response from the server
+	 *
+	 * @param	array
+	 * @return	object
+	 */		
+	protected function _parse_response($xml)
+	{	
+		$details = (object) array();
+
+		$as_array = $this->payments->arrayize_object($xml);
+
+		$result = $as_array['Approved'];
+		
+		if(isset($as_array['OrderID']))
+		{
+			$identifier = $as_array['OrderID'];
+		}
+		
+		if(isset($as_array['subscriptionId']))
+		{
+			$identifier = $as_array['subscriptionId'];
+		}
+		
+		if(isset($as_array['TransRefNumber']))
+		{
+			$identifier2 = $as_array['TransRefNumber'];
+		}
+		
+		$details->timestamp = $as_array['TransTime'];
+		$details->gateway_response = $as_array;
+		
+		if(isset($identifier))
+		{
+			$identifier = (string) $identifier; 
+			if(strlen($identifier) > 1)
+			{
+				$details->identifier = $identifier;
+			}
+		}
+		
+		if(isset($identifier2))
+		{
+			$identifier2 = (string) $identifier2; 
+			if(strlen($identifier2) > 1)
+			{		
+				$details->identifier2 = $identifier2;
+			}
+		}
+		
+		if($result == 'APPROVED')
+		{
+			return $this->payments->return_response(
+				'Success',
+				$this->payments->payment_type.'_success',
+				'gateway_response',
+				$details
+			);
+		}
+		
+		if($result == 'ERROR' OR $result == 'DECLINED')
+		{
+			if(isset($as_array['ErrMsg']))
+			{
+				$message = $as_array['ErrMsg'];
+				$message = explode(':', $message);
+				$message = $message[1];
+			}
+			
+			if(isset($message))
+			{
+				$details->reason = $message;
+			}	
+
+			return $this->payments->return_response(
+				'Failure',
+				$this->payments->payment_type.'_gateway_failure',
+				'gateway_response',
+				$details
+			);				
+		}
+	}
+				
 }

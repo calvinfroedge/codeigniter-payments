@@ -70,6 +70,7 @@ class Payments
 		$this->_response_codes = $this->ci->config->item('response_codes');
 		$this->_response_messages = $this->ci->config->item('response_messages');	
 		$this->_response_details = $this->ci->config->item('response_details');	
+		$this->ci->load->spark('curl/1.2.0');
 	}
 
 	/**
@@ -523,7 +524,42 @@ class Payments
 	
 		return $final;
 	}
-	
+
+	/**
+	 * Makes the actual request to the gateway
+	 *
+	 * @param 	string	can be either 'Success' or 'Failure'
+	 * @param	string	the response used to grab the code / message
+	 * @param	string	whether the response is coming from the application or the gateway
+	 * @param	mixed	can be an object, string or null.  Depends on whether local or gateway.
+	 * @return	object	response object
+	*/	
+	public function gateway_request($query_string, $xml = NULL, $content_type = NULL)
+	{
+		if(is_null($xml))
+		{
+			return $this->ci->curl->simple_get($query_string);
+		}
+		else
+		{
+			$this->ci->curl->create($query_string);
+			
+			if(is_null($content_type))
+			{
+				$this->ci->curl->option(CURLOPT_HTTPHEADER, array("Content-Type: text/xml"));
+			}
+			else
+			{
+				$this->ci->curl->option(CURLOPT_HTTPHEADER, array($content_type));
+			}
+			
+			$this->ci->curl->option(CURLOPT_POSTFIELDS, $xml);
+			$request = $this->ci->curl->execute();
+			$parsed = $this->parse_xml($request);	
+			return $parsed;	
+		}
+	}
+		
 	/**
 	 * Returns the response
 	 *

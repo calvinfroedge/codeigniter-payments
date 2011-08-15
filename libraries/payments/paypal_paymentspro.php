@@ -516,18 +516,76 @@ class PayPal_PaymentsPro
 	{
 		$settings = array_merge($this->_api_method, $this->_api_settings);
 		$merged = array_merge($settings, $this->_request);
-		$request = $this->payments->filter_values($merged);	
-		$this->_request = http_build_query($request);
+		$fields = $this->payments->filter_values($merged);	
+		$this->_request = http_build_query($fields);
 		$this->_http_query = $this->_api_endpoint.$this->_request;
-		
-		include 'paypal_paymentspro/request.php';
-		include 'paypal_paymentspro/response.php';
-		
-		$make_request = Paypal_PaymentsPro_Request::make_request($this->_http_query);
-		$gateway_response = Paypal_PaymentsPro_Response::parse_response($make_request);
-		
-		return $gateway_response;
-	}
 	
+		$request = $this->payments->gateway_request($this->_http_query);	
+		$response = $this->_parse_response($request);
+		
+		return $response;
+	}
+
+	/**
+	 * Parse the response from the server
+	 *
+	 * @param	array
+	 * @return	object
+	 */		
+	protected function _parse_response($response)
+	{	
+		$results = explode('&',urldecode($response));
+		foreach($results as $result)
+		{
+			list($key, $value) = explode('=', $result);
+			$gateway_response[$key]=$value;
+		}
+	
+		$details = (object) array();
+		
+		foreach($gateway_response as $k=>$v)
+		{
+				$details->gateway_response->$k = $v;
+		}
+
+		if(isset($gateway_response['L_LONGMESSAGE0']))
+		{
+			$details->reason  =	$gateway_response['L_LONGMESSAGE0'];
+		}
+
+		if(isset($gateway_response['TIMESTAMP']))
+		{
+			$details->timestamp = $gateway_response['TIMESTAMP'];
+		}
+			
+		if(isset($gateway_response['TRANSACTIONID']))
+		{
+			$details->identifier = $gateway_response['TRANSACTIONID'];
+		}
+			
+		if(isset($gateway_response['PROFILEID']))
+		{
+			$details->identifier = $gateway_response['PROFILEID'];
+		}				
+			
+		if($gateway_response['ACK'] == 'Success')
+		{	
+			return $this->payments->return_response(
+				'Success',
+				$this->payments->payment_type.'_success',
+				'gateway_response',
+				$details
+			);
+		}
+		else
+		{
+			return $this->payments->return_response(
+				'Failure',
+				$this->payments->payment_type.'_gateway_failure',
+				'gateway_response',
+				$details
+			);		
+		}	
+	}	
 	
 }
