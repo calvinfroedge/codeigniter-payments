@@ -191,7 +191,7 @@ class Payments
 	 */		
 	private function _load_module($payment_module)
 	{
-		$module = dirname(__FILE__).'/payment_modules/'.$payment_module.'.php';
+		$module = dirname(__FILE__).'/payments/'.$payment_module.'.php';
 		if (!is_file($module))
 		{
 			return FALSE;
