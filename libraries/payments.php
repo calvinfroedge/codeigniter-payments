@@ -328,6 +328,27 @@ class Payments
 			}
 		}
 		
+		//Ensure billing period is submitted in normalized form
+		if(array_key_exists('billing_period', $params))
+		{
+			$accepted_billing_period = array(
+				'Month',
+				'Day',
+				'Week',
+				'Year'
+			);
+			
+			if(!in_array($params['billing_period'], $accepted_billing_period))
+			{
+				return $this->return_response(
+					'failure', 
+					'invalid_input', 
+					'local_response', 
+					$this->_response_details['invalid_billing_period']
+				);			
+			}
+		}
+		
 		return TRUE;
 	}
 

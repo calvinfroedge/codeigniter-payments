@@ -4,6 +4,12 @@
   * Supported Methods
 */
 $config['supported_methods'] = array(
+	//BUTTON PAYMENTS (IE PAYPAL STANDARD, AMAZON SIMPLE PAY, GOOGLE CHECKOUT)
+	'oneoff_payment_button',
+	'authorize_payment_button',
+	'recurring_payment_button', 
+	
+	//SERVER TO SERVER INTEGRATION METHODS (IE ADVANCED API USERS)
 	'search_transactions',  //Search transactions based on criteria you define.
 	'get_transaction_details', //Returns a summary of a particular transaction
 	'authorize_payment',  //Authorize a payment.  Does not actually charge a customer.
@@ -147,6 +153,7 @@ $config['response_messages'] = array (
  * Additional details to help in debugging
 */
 $config['response_details'] = array (
+	'invalid_billing_period'	=>	'Billing period must be formatted as "Month", "Date", "Year" or "Week."',
 	'invalid_date_format'		=>	'Dates must be provided in MMYYYY format.',
 	'missing_ip_address'		=>	'IP address is required but was not provided in the request',
 	'missing_cc_type'			=>	'Credit Card Type is required but was not provided in the request',
@@ -168,4 +175,5 @@ $config['response_details'] = array (
 	'missing_profile_start_date'=>	'Profile start date is required but was not provided in the request',
 	'missing_billing_period'	=>	'Billing period is required but was not provided in the request',
 	'missing_billing_frequency'	=>	'Billing frequency is required but was not provided in the request',
+	'missing_desc'				=>	'Description (desc) is required but was not provided in the request'
 );
