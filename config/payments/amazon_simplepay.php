@@ -5,6 +5,8 @@ $config['api_signature_method'] = "HmacSHA256";
 $config['api_access_key'] = "AKIAJH777IYQBVL3AOZQ";
 $config['api_access_secret_key'] = "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";
 $config['api_endpoint'] = "https://authorize.payments-sandbox.amazon.com/pba/paypipeline";
+$config['fps_endpoint'] = "https://fps.sandbox.amazonaws.com";
+$config['fps_version'] = "2008-09-17";
 $config['api_signature'] = "44dEwwa6P7C9iI94U/ra33Pn2TS9ie8MkfcvIRyLh7M=";
 $config['api_account_id'] = "IMJQCXSTTXAC1LC65HRK5VIA5MP9J1S9SRUFRF";
 $config['button_onetime_endpoint'] = 'https://authorize.payments-sandbox.amazon.com/pba/paypipeline';

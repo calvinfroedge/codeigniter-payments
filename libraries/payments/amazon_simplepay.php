@@ -23,6 +23,16 @@ class Amazon_SimplePay
 	private $_form_string = array();	
 
 	/**
+	 * The api endpoint
+	*/	
+	private $_api_endpoint;	
+
+	/**
+	 * The FPS endpoint
+	*/	
+	private $_fps_endpoint;	
+		
+	/**
 	 * The final string to be sent in the http query
 	*/	
 	private $_http_query;	
@@ -37,7 +47,10 @@ class Amazon_SimplePay
 	public function __construct($payments)
 	{
 		$this->payments = $payments;
-		$this->_api_endpoint = $this->payments->ci->config->item('api_endpoint');		
+		$this->_api_endpoint = $this->payments->ci->config->item('api_endpoint');	
+		$this->_fps_endpoint = $this->payments->ci->config->item('fps_endpoint');
+		$this->_fps_version = $this->payments->ci->config->item('fps_version');
+		$this->_fps_endpoint_parsed = parse_url($this->_fps_endpoint);		
 		$this->_api_settings = array(
 			'immediateReturn'	=> $this->payments->ci->config->item('immediate_return'),
 			'collectShippingAddress'	=> $this->payments->ci->config->item('collect_shipping_address'),
@@ -142,17 +155,11 @@ class Amazon_SimplePay
 		
 		return $string;
 	}
-	
-	private function _api_call()
-	{
-	
-	}
-
 
 	/**
-	 * Make a oneoff payment
+	 * Payment authorization button
 	 * @param	array	An array of payment params, sent from your controller / library
-	 * @return	object	The response from the payment gateway
+	 * @return	string	A well-formed HTML string
 	*/	
 	public function amazon_simplepay_oneoff_payment_button($params)
 	{
@@ -161,9 +168,9 @@ class Amazon_SimplePay
 	}
 
 	/**
-	 * Authorize a oneoff payment
+	 * Payment authorization button
 	 * @param	array	An array of payment params, sent from your controller / library
-	 * @return	object	The response from the payment gateway
+	 * @return	string	A well-formed HTML string
 	*/	
 	public function amazon_simplepay_authorize_payment_button($params)
 	{
@@ -172,25 +179,35 @@ class Amazon_SimplePay
 	}
 
 	/**
-	 * Authorize a oneoff payment
+	 * Recurring payment button
 	 * @param	array	An array of payment params, sent from your controller / library
-	 * @return	object	The response from the payment gateway
+	 * @return	string	A well-formed HTML string
 	*/	
 	public function amazon_simplepay_recurring_payment_button($params)
 	{
 		$form = $this->_build_button($params, '0', TRUE);	
 		return $form;
 	}	
-	
-	public function amazon_simplepay_cancel_recurring_profile($params)
-	{	
+
+	/**
+	 * Void a transaction
+	 * @param	array	An array of payment params, sent from your controller / library
+	 * @return	object	A response from the payment gateway
+	*/	
+	public function amazon_simplepay_void_payment($params)
+	{
+		$this->_api_method = 'Cancel';
 		$this->_params = array(
-			'Action' => 'CancelSubscriptionAndRefund',
+			'Action' => $this->_api_method,
 			'AWSAccessKeyId' => $this->_api_settings['accessKey'],
 			'CurrencyCode' => 'USD',
-			'SignatureMethod' => $this->_api_settings['signatureVersion'],
-			'SignatureVersion' => $this->_api_settings['signatureMethod'],
-			'SubscriptionId' => $params['identifier']
+			'TransactionId' => $params['identifier'],
+			'CancelReason' => $params['note'],
+			'Description' => $params['note'],
+			'Timestamp' => date('Y-m-d'),			
+			'Version' => $this->_fps_version,		
+			'SignatureVersion' => $this->_api_settings['signatureVersion'],			
+			'SignatureMethod' => $this->_api_settings['signatureMethod'],
 		);
 		
 		if(!empty($params['note']))
@@ -198,8 +215,120 @@ class Amazon_SimplePay
 			$this->_params['CancelReason'] = $params['note'];
 		}
 		
-		$this->_api_call();
+		$this->_params['Signature'] = SignatureUtils::signParameters($this->_params, $this->_secret_key, $this->_http_method, $this->_fps_endpoint_parsed['host'], '/', $this->_algorithm);
+		
+		$call = $this->_api_call();
+		return $call;
 	}
+
+	/**
+	 * Get a recurring profile
+	 * @param	array	An array of payment params, sent from your controller / library
+	 * @return	object	A response from the payment gateway
+	*/		
+	public function amazon_simplepay_get_recurring_profile($params)
+	{
+		/*
+		NOT YET IMPLEMENTED
+		$this->_api_method = 'GetSubscriptionDetails';
+		$this->_params = array(
+			'Action' => $this->_api_method,
+			'AWSAccessKeyId' => $this->_api_settings['accessKey'],
+			'CurrencyCode' => 'USD',
+			'SubscriptionId' => $params['identifier'],
+			'Timestamp' => date('Y-m-d'),			
+			'Version' => $this->_fps_version,		
+			'SignatureVersion' => $this->_api_settings['signatureVersion'],			
+			'SignatureMethod' => $this->_api_settings['signatureMethod'],
+		);
+		
+		if(!empty($params['note']))
+		{
+			$this->_params['CancelReason'] = $params['note'];
+		}
+		
+		$this->_params['Signature'] = SignatureUtils::signParameters($this->_params, $this->_secret_key, $this->_http_method, $this->_fps_endpoint_parsed['host'], '/', $this->_algorithm);
+		
+		$call = $this->_api_call();
+		return $call;
+		*/
+	}
+	
+	/**
+	 * Cancel a recurring profile
+	 * @param	array	An array of payment params, sent from your controller / library
+	 * @return	object	A response from the payment gateway
+	*/		
+	public function amazon_simplepay_cancel_recurring_profile($params)
+	{
+		$this->_api_method = 'CancelSubscriptionAndRefund';
+		$this->_params = array(
+			'Action' => $this->_api_method,
+			'AWSAccessKeyId' => $this->_api_settings['accessKey'],
+			'CurrencyCode' => 'USD',
+			'SubscriptionId' => $params['identifier'],
+			'Timestamp' => date('Y-m-d'),			
+			'Version' => $this->_fps_version,		
+			'SignatureVersion' => $this->_api_settings['signatureVersion'],			
+			'SignatureMethod' => $this->_api_settings['signatureMethod'],
+		);
+		
+		if(!empty($params['note']))
+		{
+			$this->_params['CancelReason'] = $params['note'];
+		}
+		
+		$this->_params['Signature'] = SignatureUtils::signParameters($this->_params, $this->_secret_key, $this->_http_method, $this->_fps_endpoint_parsed['host'], '/', $this->_algorithm);
+		
+		$call = $this->_api_call();
+		return $call;
+	}
+
+	/**
+	 * Make a call to the Amazon API
+	 * @return	object	The response from the payment gateway
+	*/		
+	private function _api_call()
+	{
+		$this->_params = $this->payments->filter_values($this->_params);
+		$this->_http_query = $this->_fps_endpoint.'?'.http_build_query($this->_params);
+		//var_dump($this->_http_query);exit;
+		$gateway_call = $this->payments->gateway_request($this->_http_query);
+		
+		return $this->_parse_response($gateway_call);
+	}
+
+	/**
+	 * Parse a response from the payment gateway
+	 * @return	object	The response from the payment gateway
+	*/		
+	private function _parse_response($response)
+	{
+		$details = (object) array();
+		
+		$response = $this->payments->arrayize_object($response);
+		
+		if(array_key_exists($response['Errors']))
+		{
+			$details->reason = $response['Errors']['Error']['Message'];
+			return $this->payments->return_response(
+				'Failure',
+				$this->payments->payment_type.'_gateway_failure',
+				'gateway_response',
+				$details
+			);	
+		}
+		else
+		{
+			return $this->payments->return_response(
+				'Success',
+				$this->payments->payment_type.'_success',
+				'gateway_response'
+			);			
+		}
+		
+		return $response;
+	}	
 }
 
 /** 
