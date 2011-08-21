@@ -7,7 +7,7 @@ Available via Sparks.  For info about how to install sparks, go here: http://get
 You can then load the spark with this:
 
 ```php
-$this->load->spark('codeigniter-payments/0.0.1/');
+$this->load->spark('codeigniter-payments/[version #]/');
 ```
 
 There are config files for each gateway in the /config folder of the spark.  You need to enter your own API usernames and passwords (the ones in there are mine, used only for testing purposes) in the config of each gateway you would like to use.
