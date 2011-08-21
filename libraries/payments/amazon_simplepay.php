@@ -29,7 +29,7 @@ class Amazon_SimplePay
 
 	private $_http_method = "POST";
 	
-	private $_algoritm;
+	private $_params;
 	
 	/**
 	 * Constructor method
@@ -142,6 +142,11 @@ class Amazon_SimplePay
 		
 		return $string;
 	}
+	
+	private function _api_call()
+	{
+	
+	}
 
 
 	/**
@@ -178,26 +183,22 @@ class Amazon_SimplePay
 	}	
 	
 	public function amazon_simplepay_cancel_recurring_profile($params)
-	{
-		/*Working on it!
-		$string = 'https://fps.sandbox.amazonaws.com?Action=CancelSubscriptionAndRefund&AWSAccessKeyId=AKIAIIFXJCFIHITREP4Q&CallerReference=CallerReference07&CancelReason=MyWish&RefundAmount.CurrencyCode=USD&RefundAmount.Value=1&SignatureMethod=HmacSHA256&SignatureVersion=2&Signature=44dEwwa6P7C9iI94U/ra33Pn2TS9ie8MkfcvIRyLh7M=&SubscriptionId=17d62772-c53e-4bdb-9667-65d7b7841cfc&Timestamp=2009-10-06T08%3A05%3A13.296Z&Version=2008-09-17';
-
-		//$request = $this->payments->gateway_request($string);var_dump($request);exit;
-//$qry_str = "$string";
-$ch = curl_init();
-
-// Set query data here with the URL
-curl_setopt($ch, CURLOPT_URL, $string); 
-
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-curl_setopt($ch, CURLOPT_TIMEOUT, '3');
-$content = trim(curl_exec($ch));
-curl_close($ch);
-var_dump($content);exit;	
-	
-		//$request = $this->payments->gateway_request($string);
-		//echo '<hr /><h2>Response:</h2>';
-		//var_dump($this->payments->gateway_request($string));exit;*/
+	{	
+		$this->_params = array(
+			'Action' => 'CancelSubscriptionAndRefund',
+			'AWSAccessKeyId' => $this->_api_settings['accessKey'],
+			'CurrencyCode' => 'USD',
+			'SignatureMethod' => $this->_api_settings['signatureVersion'],
+			'SignatureVersion' => $this->_api_settings['signatureMethod'],
+			'SubscriptionId' => $params['identifier']
+		);
+		
+		if(!empty($params['note']))
+		{
+			$this->_params['CancelReason'] = $params['note'];
+		}
+		
+		$this->_api_call();
 	}
 }
 

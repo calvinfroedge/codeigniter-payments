@@ -68,8 +68,8 @@ class Payments
 	{
 		$this->ci =& get_instance();
 		$this->_response_codes = $this->ci->config->item('response_codes');
-		$this->_response_messages = $this->ci->config->item('response_messages');	
-		$this->_response_details = $this->ci->config->item('response_details');	
+		$this->ci->lang->load('response_messages');	
+		$this->ci->lang->load('response_details');
 		$this->ci->load->spark('curl/1.2.0');
 	}
 
@@ -297,7 +297,7 @@ class Payments
 		{	
 			if(!array_key_exists($v, $params) OR empty($params[$v]) OR is_null($params[$v]) OR $params[$v] == ' ')
 			{
-				$missing[] = $this->_response_details['missing_'.$v];
+				$missing[] = $this->ci->lang->line('response_detail_missing_'.$v);
 			}
 		}
 		
@@ -323,7 +323,7 @@ class Payments
 					'failure', 
 					'invalid_input', 
 					'local_response', 
-					$this->_response_details['invalid_date_format']
+					$this->ci->lang->line('response_detail_invalid_date_format')
 				);
 			}
 		}
@@ -344,7 +344,7 @@ class Payments
 					'failure', 
 					'invalid_input', 
 					'local_response', 
-					$this->_response_details['invalid_billing_period']
+					$this->ci->lang->line('response_detail_invalid_billing_period')
 				);			
 			}
 		}
@@ -559,7 +559,17 @@ class Payments
 	{
 		if(is_null($xml))
 		{
-			return $this->ci->curl->simple_get($query_string);
+			$this->ci->curl->create($query_string);
+			$this->ci->curl->option('FAILONERROR', FALSE);
+			$request = $this->ci->curl->execute();
+			if($request[0] == '<')
+			{
+				return $this->parse_xml($request);
+			}
+			else
+			{
+				return $request;
+			}
 		}
 		else
 		{
@@ -629,7 +639,7 @@ class Payments
 		? $message_type = 'info'
 		: $message_type = 'error';
 			
-		log_message($message_type, $this->_response_messages[$response]);
+		log_message($message_type, $this->ci->lang->line('response_message_'.$response));
 		
 		if(is_null($response_details))
 		{
@@ -638,7 +648,7 @@ class Payments
 				'type'				=>	'local_response',
 				'status' 			=>	$status, 
 				'response_code' 	=>	$this->_response_codes[$response], 
-				'response_message' 	=>	$this->_response_messages[$response]
+				'response_message' 	=>	$this->ci->lang->line('response_message_'.$response)
 			);			
 		}
 		else
@@ -648,7 +658,7 @@ class Payments
 				'type'				=>	'local_response',
 				'status' 			=>	$status, 
 				'response_code' 	=>	$this->_response_codes[$response], 
-				'response_message' 	=>	$this->_response_messages[$response],
+				'response_message' 	=>	$this->ci->lang->line('response_message_'.$response),
 				'details'			=>	$response_details
 			);				
 		}	
@@ -669,7 +679,7 @@ class Payments
 			'type'				=>	'gateway_response',
 			'status' 			=>	$status, 
 			'response_code' 	=>	$this->_response_codes[$response], 
-			'response_message' 	=>	$this->_response_messages[$response],
+			'response_message' 	=>	$this->ci->lang->line('response_message_'.$response),
 			'details'			=>	$details
 		);		
 	}

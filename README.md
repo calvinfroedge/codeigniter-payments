@@ -62,8 +62,6 @@ $this->payments->payment_action('gateway_name', $params);
 There are two types of responses returned, local responses and gateway responses.  If a method is not supported, required params are missing, a gateway does not exist, etc., a local response will be returned.  This prevents the transaction from being sent to the gateway and the gateway telling you 3 seconds later there is something wrong with your request.:
 
 ```php
-//Local responses (object)
-
 'type'				=>	'local_response',  //Indicates failure was local
 'status' 			=>	$status, //Either success or failure
 'response_code' 	=>	$this->_response_codes[$response], 
@@ -83,9 +81,8 @@ $status = $response->status;
 ```
 
 Gateway responses will usually have a full response from the gateway, and on failure a 'reason' property in the details object:
-```php
-//Local responses (object)
 
+```php
 'type'				=>	'gateway_response',
 'status' 			=>	$status, 
 'response_code' 	=>	$this->_response_codes[$response], 
