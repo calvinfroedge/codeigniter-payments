@@ -115,7 +115,10 @@ $config['required_params'] = array(
 		'billing_period',
 		'billing_frequency'
 	),
+	'void_transaction' => array(
+		'identifier'
+	),
 	'cancel_recurring_profile' => array(
-	
+		'identifier'
 	),
 );
