@@ -289,6 +289,15 @@ class Payments
 	{
 		//Ensure required params are present
 		$req = $this->ci->config->item('required_params');
+		if( ! isset($req[$this->payment_type]))
+		{
+			return $this->return_response(
+				'failure', 
+				'not_a_method', 
+				'local_response'
+			);
+		}
+		
 		$this->required_params = $req;
 		$req = $req[$this->payment_type];
 		
