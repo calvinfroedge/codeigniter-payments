@@ -71,10 +71,7 @@ class Payments
 		$this->ci->lang->load('response_messages');	
 		$this->ci->lang->load('response_details');
 		$this->ci->load->spark('curl/1.2.0');
-		if($this->_connection_is_secure() === FALSE)
-		{
-			log_message('error', 'WARNING!! Using Payment Gateway without Secure Connection!');
-		}
+		$this->_connection_is_secure();
 	}
 
 	/**
@@ -705,10 +702,15 @@ class Payments
 	 */
 	private function _connection_is_secure()
 	{
-		$is_secure = ($_SERVER['SERVER_PORT'] === '443' && isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on');
+		// Check whether secure connection is required
+		if($this->ci->config->item('force_secure_connection') === FALSE) 
+		{
+			log_message('error', 'WARNING!! Using Payment Gateway without Secure Connection!');
+			return FALSE;
+		}
 		
 		// Redirect if NOT secure and forcing a secure connection.
-		if($is_secure !== TRUE && $this->ci->config->item('force_secure_connection') === TRUE)
+		if(($_SERVER['SERVER_PORT'] === '443' && isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') === FALSE)
 		{
 			log_message('debug', 'Forcing Secure Connection for Payment Gateway');
 			$loc = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
@@ -717,6 +719,6 @@ class Payments
 			exit;
 		}
 		
-		return $is_secure;
+		return TRUE; // Only Possible Outcome is TRUE
 	}
 }
