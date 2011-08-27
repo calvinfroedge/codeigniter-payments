@@ -23,7 +23,7 @@ The following gateways are supported:
 - QuickBooks Merchant Services
 - Eway (Australia)
 
-## Methods Supported (note, not all methods are supported by all gateways.  For a full method support list visit http://payments.calvinfroedge.com/gateways):
+## Methods Supported (note, not all methods are supported by all gateways.  For a full method support list visit http://payments.calvinfroedge.com/gateways ):
 
 - oneoff_payment: Makes a one time charge
 - authorize_payment: Authorizes a charge, which is essentially a hold.  This requires later capturing the funds you authorized (most gateways require you do this the same business day).
