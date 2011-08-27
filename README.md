@@ -12,6 +12,8 @@ $this->load->spark('codeigniter-payments/[version #]/');
 
 There are config files for each gateway in the /config folder of the spark.  You need to enter your own API usernames and passwords (the ones in there are mine, used only for testing purposes) in the config of each gateway you would like to use.
 
+IMPORTANT: If you want to test locally (and you should), you need to set "force_secure_connection" to FALSE in config/payments.php
+
 ## Gateway Support
 
 The following gateways are supported:
@@ -22,10 +24,12 @@ The following gateways are supported:
 - Beanstream
 - QuickBooks Merchant Services
 - Eway (Australia)
+- Amazon SimplePay
 
 ## Methods Supported (note, not all methods are supported by all gateways.  For a full method support list visit http://payments.calvinfroedge.com/gateways):
 
 - oneoff_payment: Makes a one time charge
+- reference_payment: Make a payment based on a previous transaction.  Mimics a card vault.  Currently only implemented in PayPal Payments Pro.
 - authorize_payment: Authorizes a charge, which is essentially a hold.  This requires later capturing the funds you authorized (most gateways require you do this the same business day).
 - capture_payment: Finalize an authorization, actually charges the customer.
 - void_payment: Cancel a payment that has not been settled (transactions get settled at the end of the business day).
