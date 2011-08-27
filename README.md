@@ -26,7 +26,7 @@ The following gateways are supported:
 - Eway (Australia)
 - Amazon SimplePay
 
-## Methods Supported (note, not all methods are supported by all gateways.  For a full method support list visit http://payments.calvinfroedge.com/gateways):
+## Methods Supported (note, not all methods are supported by all gateways.  For a full method support list visit http://payments.calvinfroedge.com/gateways ):
 
 - oneoff_payment: Makes a one time charge
 - reference_payment: Make a payment based on a previous transaction.  Mimics a card vault.  Currently only implemented in PayPal Payments Pro.
