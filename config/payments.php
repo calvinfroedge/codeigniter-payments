@@ -1,6 +1,13 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /**
+ * Force Secure Connection. Should only be turned to FALSE if testing.
+ * 
+ * DEFAULT: TRUE 
+ */
+$config['force_secure_connection'] = TRUE;
+
+/**
   * Supported Methods
 */
 $config['supported_methods'] = array(
