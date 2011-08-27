@@ -27,11 +27,6 @@ $config['required_params'] = array(
 		'cc_type',
 		'cc_number',
 		'cc_exp',
-		'street',
-		'state',
-		'city',
-		'country',
-		'postal_code',
 		'amt'	
 	),
 	'capture_payment'	=>	array(
