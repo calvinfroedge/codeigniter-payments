@@ -15,6 +15,7 @@ $config['supported_methods'] = array(
 	'authorize_payment',  //Authorize a payment.  Does not actually charge a customer.
 	'capture_payment', //Capture a payment
 	'oneoff_payment', //A one time payment
+	'reference_payment', //A one off payment that references a previous one off payment to use it's card data
 	'void_payment',  //Void a payment that has not yet been settled / finalized
 	'change_transaction_status', //Change a particular transaction's status
 	'refund_payment', //Refund a payment
@@ -46,6 +47,9 @@ $config['response_codes'] = array (
 	'oneoff_payment_success'						=>	'100',
 	'oneoff_payment_local_failure'					=>	'000',
 	'oneoff_payment_gateway_failure'				=>	'011',
+	'reference_payment_success'						=>	'100',
+	'reference_payment_local_failure'				=>	'000',
+	'reference_payment_gateway_failure'				=>	'011',	
 	'capture_payment_success'						=>	'100',
 	'capture_payment_local_failure'					=>	'000',
 	'capture_payment_gateway_failure'				=>	'011',

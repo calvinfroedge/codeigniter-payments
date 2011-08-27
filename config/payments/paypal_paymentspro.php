@@ -24,6 +24,12 @@ $config['required_params'] = array(
 		'postal_code',
 		'amt'
 	),
+	'reference_payment' =>	array(
+		'identifier',
+		'amt',
+		//'first_name',
+		//'last_Name'
+	),
 	'authorize_payment'	=>	array(
 		'cc_type',
 		'cc_number',

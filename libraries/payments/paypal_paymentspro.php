@@ -83,6 +83,19 @@ class PayPal_PaymentsPro
 		$this->_build_oneoff_request($params, 'Sale');	
 		return $this->_handle_query();
 	}
+
+	/**
+	 * Reference a previous transaction and make a payment based off that transaction
+	 * @param	array	An array of payment params, sent from your controller / library
+	 * @return	object	The response from the payment gateway
+	*/	
+	public function paypal_paymentspro_reference_payment($params)
+	{
+		$this->_api_method = array('METHOD' => 'DoReferenceTransaction');
+		$this->_build_oneoff_request($params, 'Sale');	
+		$this->_request['REFERENCEID'] = $params['identifier'];
+		return $this->_handle_query();
+	}	
 		
 	/**
 	 * Authorize a oneoff payment
