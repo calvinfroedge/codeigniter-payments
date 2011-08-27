@@ -5,7 +5,7 @@
  * 
  * DEFAULT: TRUE 
  */
-$config['force_secure_connection'] = TRUE;
+$config['force_secure_connection'] = FALSE;
 
 /**
   * Supported Methods
