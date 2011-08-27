@@ -71,6 +71,7 @@ class Payments
 		$this->ci->lang->load('response_messages');	
 		$this->ci->lang->load('response_details');
 		$this->ci->load->spark('curl/1.2.0');
+		$this->_connection_is_secure();
 	}
 
 	/**
@@ -288,6 +289,15 @@ class Payments
 	{
 		//Ensure required params are present
 		$req = $this->ci->config->item('required_params');
+		if( ! isset($req[$this->payment_type]))
+		{
+			return $this->return_response(
+				'failure', 
+				'not_a_method', 
+				'local_response'
+			);
+		}
+		
 		$this->required_params = $req;
 		$req = $req[$this->payment_type];
 		
@@ -682,5 +692,42 @@ class Payments
 			'response_message' 	=>	$this->ci->lang->line('response_message_'.$response),
 			'details'			=>	$details
 		);		
+	}	
+	
+	/**
+	 * Connection is Secure
+	 * 
+	 * Checks whether current connection is secure and will redirect
+	 * to secure version of page if 'force_secure_connection' is TRUE
+	 * 
+	 * To Force HTTPS for your entire website, use a .htaccess like the following:
+	 *
+	 *  RewriteEngine On
+	 *  RewriteCond %{SERVER_PORT} 80
+	 *  RewriteRule ^(.*)$ https://domain.com/$1 [R,L]
+	 * 
+	 * @link http://davidwalsh.name/force-secure-ssl-htaccess
+	 * @return	bool
+	 */
+	private function _connection_is_secure()
+	{
+		// Check whether secure connection is required
+		if($this->ci->config->item('force_secure_connection') === FALSE) 
+		{
+			log_message('error', 'WARNING!! Using Payment Gateway without Secure Connection!');
+			return FALSE;
+		}
+		
+		// Redirect if NOT secure and forcing a secure connection.
+		if(($_SERVER['SERVER_PORT'] === '443' && isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') === FALSE)
+		{
+			log_message('debug', 'Forcing Secure Connection for Payment Gateway');
+			$loc = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+			$this->ci->load->helper('url');
+			redirect($loc);
+			exit;
+		}
+		
+		return TRUE; // Only Possible Outcome is TRUE
 	}
 }
