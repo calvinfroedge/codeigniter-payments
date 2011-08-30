@@ -12,7 +12,12 @@ $this->load->spark('codeigniter-payments/[version #]/');
 
 There are config files for each gateway in the /config folder of the spark.  You need to enter your own API usernames and passwords (the ones in there are mine, used only for testing purposes) in the config of each gateway you would like to use.
 
-IMPORTANT: If you want to test locally (and you should), you need to set "force_secure_connection" to FALSE in config/payments.php
+## IMPORTANT!
+
+1.  If you want to test locally (and you should), you need to set "force_secure_connection" to FALSE in config/payments.php
+
+2.  By default, test api endpoints will be used.  To enable production endpoints, change the mode in /config/payments.php from 'test' to 'production'.  Note that if you are a Psigate customer, you must obtain your production endpoint from Psigate support.
+
 
 ## Gateway Support
 
