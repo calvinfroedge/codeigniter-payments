@@ -64,7 +64,7 @@ class Authorize_Net
 	{
 		$this->payments = $payments;				
 		$this->_default_params = $this->payments->ci->config->item('method_params');
-		$this->_api_endpoint = $this->payments->ci->config->item('api_endpoint');
+		$this->_api_endpoint = $this->payments->ci->config->item('api_endpoint'.'_'.$this->payments->mode);
 		$this->_delimiter = $this->payments->ci->config->item('delimiter');		
 		$this->_api_settings = array(
 			'login'			=> $this->payments->ci->config->item('api_username'),

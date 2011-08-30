@@ -38,7 +38,7 @@ class Psigate
 	
 	protected function _set_messenger_settings()
 	{
-		$this->_api_endpoint = $this->payments->ci->config->item('api_endpoint');	
+		$this->_api_endpoint = $this->payments->ci->config->item('api_endpoint'.'_'.$this->payments->mode);	
 		
 		$this->_api_settings = array(
 			'cid'			=> $this->payments->ci->config->item('api_cid'),
@@ -52,7 +52,7 @@ class Psigate
 	
 	protected function _set_account_manager_settings()
 	{
-		$this->_api_endpoint = $this->payments->ci->config->item('api_recurring_endpoint');	
+		$this->_api_endpoint = $this->payments->ci->config->item('api_recurring_endpoint'.'_'.$this->payments->mode);	
 		
 		$this->_api_settings = array(
 			'cid'			=> $this->payments->ci->config->item('api_cid'),

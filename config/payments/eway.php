@@ -2,7 +2,8 @@
 
 $config['api_cid'] = "87654321";
 //Note: you can sign into the test interface at test.authorize.net
-$config['api_endpoint'] = "https://www.eway.com.au/gateway/xmltest/testpage.asp";
+$config['api_endpoint_test'] = "https://www.eway.com.au/gateway/xmltest/testpage.asp";
+$config['api_endpoint_production'] = "https://www.eway.com.au/gateway_cvn/xmlpayment.asp";
 
 $config['required_params'] = array(
 	'oneoff_payment'	=>	array(

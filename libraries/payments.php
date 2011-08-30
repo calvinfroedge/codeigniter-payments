@@ -24,7 +24,7 @@ class Payments
 	/**
 	 * The version
 	*/	
-	private $_version = '0.0.1';
+	public $mode;
 
 	/**
 	 * The payment module to use
@@ -67,6 +67,7 @@ class Payments
 	public function __construct()
 	{
 		$this->ci =& get_instance();
+		$this->mode = $this->ci->config->item('payments_mode');
 		$this->_response_codes = $this->ci->config->item('response_codes');
 		$this->ci->lang->load('response_messages');	
 		$this->ci->lang->load('response_details');
