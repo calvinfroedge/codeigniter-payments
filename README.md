@@ -1,3 +1,5 @@
+[![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=calvinfroedge&url=http://github.com/calvinfroedge/codeigniter-payments&title=Codeigniter Payments&language=en_GB&tags=github&category=software) 
+
 # Codeigniter Payments
 
 ## Installing
