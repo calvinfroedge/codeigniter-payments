@@ -559,17 +559,18 @@ class Payments
 	/**
 	 * Makes the actual request to the gateway
 	 *
-	 * @param 	string	can be either 'Success' or 'Failure'
-	 * @param	string	the response used to grab the code / message
-	 * @param	string	whether the response is coming from the application or the gateway
-	 * @param	mixed	can be an object, string or null.  Depends on whether local or gateway.
+	 * @param 	string	This is the API endpoint currently being used
+	 * @param	string	The data to be passed to the API
+	 * @param	string	A specific content type to define for cURL request
 	 * @return	object	response object
 	*/	
 	public function gateway_request($query_string, $xml = NULL, $content_type = NULL)
 	{
+		// Setup Gateway Request
+		$this->ci->curl->create($query_string);
+				
 		if(is_null($xml))
 		{
-			$this->ci->curl->create($query_string);
 			$this->ci->curl->option('FAILONERROR', FALSE);
 			$request = $this->ci->curl->execute();
 			if($request[0] == '<')
@@ -581,10 +582,15 @@ class Payments
 				return $request;
 			}
 		}
-		else
+		elseif($content_type === 'POST')
 		{
-			$this->ci->curl->create($query_string);
-			
+			$this->ci->curl->post($xml);
+			$request = $this->ci->curl->execute();
+			parse_str($request, $return); // parse_str() assigns array to second param		
+			return (object) $return; // Typecasting to object to maintain compatability
+		}
+		else
+		{		
 			if(is_null($content_type))
 			{
 				$this->ci->curl->option(CURLOPT_HTTPHEADER, array("Content-Type: text/xml"));
