@@ -233,7 +233,7 @@ class Bluepay {
 	protected function _handle_query()
 	{	
 		$this->_http_query = $this->_request;
-		$response_object = $this->payments->gateway_request($this->_api_endpoint, $this->_http_query, 'POST');
+		$response_object = $this->payments->gateway_request($this->_api_endpoint.'?'.$this->_http_query);
 		return $this->_parse_response($response_object);
 	}
 	
