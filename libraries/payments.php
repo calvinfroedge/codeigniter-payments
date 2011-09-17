@@ -567,10 +567,11 @@ class Payments
 	*/	
 	public function gateway_request($query_string, $xml = NULL, $content_type = NULL)
 	{
+		$this->ci->curl->create($query_string);	
+		$this->ci->curl->option('FAILONERROR', FALSE);
+
 		if(is_null($xml))
 		{
-			$this->ci->curl->create($query_string);
-			$this->ci->curl->option('FAILONERROR', FALSE);
 			$request = $this->ci->curl->execute();
 			if($request[0] == '<')
 			{
@@ -583,8 +584,6 @@ class Payments
 		}
 		else
 		{
-			$this->ci->curl->create($query_string);
-			
 			if(is_null($content_type))
 			{
 				$this->ci->curl->option(CURLOPT_HTTPHEADER, array("Content-Type: text/xml"));
