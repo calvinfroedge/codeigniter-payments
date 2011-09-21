@@ -27,7 +27,7 @@ class Bluepay_Examples extends CI_Controller {
 			'email'				=>	'your-email@your-domain.com',
 			'first_name'		=>	'Bill',
 			'last_name'			=>	'Testing',
-			'street'			=>	'181 Rowland Lane', 
+			'street'			=>	'181 Something Street', 
 			'city'				=>	'Tompkinsville', 
 			'state'				=>	'KY', 
 			'country'			=>	'US', 

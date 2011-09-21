@@ -11,7 +11,7 @@
 * @author Calvin Froedge (www.calvinfroedge.com)
 * @created 07/02/2011
 * @license http://www.opensource.org/licenses/mit-license.php
-* @link https://github.com/calvinfroedge/Codeigniter-Payments-Spark
+* @link https://github.com/calvinfroedge/codeigniter-payments
 */
 
 class Payments
@@ -565,12 +565,12 @@ class Payments
     * @param  string  A specific content type to define for cURL request
 	* @return	object	response object
 	*/	
-	public function gateway_request($query_string, $xml = NULL, $content_type = NULL)
+	public function gateway_request($query_string, $payload = NULL, $content_type = NULL)
 	{
 		$this->ci->curl->create($query_string);	
 		$this->ci->curl->option('FAILONERROR', FALSE);
 
-		if(is_null($xml))
+		if(is_null($payload))
 		{
 			$request = $this->ci->curl->execute();
 			if($request[0] == '<')
@@ -586,17 +586,29 @@ class Payments
 		{
 			if(is_null($content_type))
 			{
+				$xml = TRUE;
 				$this->ci->curl->option(CURLOPT_HTTPHEADER, array("Content-Type: text/xml"));
 			}
 			else
 			{
-				$this->ci->curl->option(CURLOPT_HTTPHEADER, array($content_type));
+				if(strpos($content_type, 'xml') !== FALSE)
+				{
+					$xml = TRUE;
+				}
+				
+				$this->ci->curl->option(CURLOPT_HTTPHEADER, array("Content-Type: ".$content_type));
 			}
 			
-			$this->ci->curl->option(CURLOPT_POSTFIELDS, $xml);
+			$this->ci->curl->option(CURLOPT_POSTFIELDS, $payload);
 			$request = $this->ci->curl->execute();
-			$parsed = $this->parse_xml($request);	
-			return $parsed;	
+			if(isset($xml) && $xml === TRUE)
+			{
+				return $this->parse_xml($request);
+			}
+			else
+			{
+				return $request;
+			}
 		}
 	}
 		

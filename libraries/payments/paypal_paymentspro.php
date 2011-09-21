@@ -547,6 +547,16 @@ class PayPal_PaymentsPro
 	 */		
 	protected function _parse_response($response)
 	{	
+	
+		if($response === FALSE)
+		{
+			return $this->payments->return_response(
+				'Failure',
+				$this->payments->payment_type.'_gateway_failure',
+				'gateway_response'
+			);			
+		}
+		
 		$results = explode('&',urldecode($response));
 		foreach($results as $result)
 		{

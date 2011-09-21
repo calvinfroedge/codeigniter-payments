@@ -10,7 +10,7 @@
  * @email jkallman@eclarian.com
  * @created 08/24/2011
  * @license http://www.opensource.org/licenses/mit-license.php
- * @link https://github.com/calvinfroedge/Codeigniter-Payments-Spark
+ * @link https://github.com/calvinfroedge/codeigniter-payments
  */
 class Bluepay {
 
@@ -233,7 +233,7 @@ class Bluepay {
 	protected function _handle_query()
 	{	
 		$this->_http_query = $this->_request;
-		$response_object = $this->payments->gateway_request($this->_api_endpoint.'?'.$this->_http_query);
+		$response_object = $this->payments->gateway_request($this->_api_endpoint, $this->_http_query, 'application/x-www-form-urlencoded');
 		return $this->_parse_response($response_object);
 	}
 	
@@ -250,17 +250,46 @@ class Bluepay {
 		// Since this module currently uses POST to make the gateway request
 		// We know our current object can be simply typecasted back to an array.
 		// IF THIS EVER CHANGES, USE $this->payments->arrayize_object($data);
-		$data = (array) $data;
+		$results = explode('&',urldecode($data));
+		foreach($results as $result)
+		{
+			list($key, $value) = explode('=', $result);
+			$gateway_response[$key]=$value;
+		}		
+		
 		$details = (object) array();
 		$details->timestamp = gmdate('c');
-		$details->gateway_response = $data; // Full Gateway Response		
+		$details->gateway_response = $gateway_response; // Full Gateway Response		
+		
+		//Set response types
+		$response_types = array(
+			'E' => $this->payments->payment_type.'_gateway_failure', 
+			'1' => $this->payments->payment_type.'_success', 
+			'0' => $this->payments->payment_type.'_local_failure'
+		);
 		
 		// Default to Failure if data is not what is expected
-		$response_types = array('E' => '_gateway_failure', '1' => '_success', '0' => '_local_failure');
-		$status = 'error';
+		$status = 'failure';
 		
+		// Setup Final Response 
+		if(isset($gateway_response['MESSAGE']))
+		{		
+			$details->reason = $gateway_response['MESSAGE'];
+		}
+		
+		if(isset($gateway_response['STATUS']))
+		{
+			$details->status = $gateway_response['STATUS']; // The request can be successful, yet have the card be declined
+		}
+		
+		// Setup additional properties if successful
+		if(isset($gateway_response['TRANS_ID']))
+		{
+			$details->identifier = $gateway_response['TRANS_ID'];
+		}
+				
 		// Return Local Response, because we didn't get an expected response from server
-		if( ! isset($data['STATUS'], $data['MESSAGE'], $response_types[$data['STATUS']]))
+		if( ! isset($gateway_response['STATUS'], $gateway_response['MESSAGE']))
 		{
 			// @todo - Don't know if this should be a different response than "gateway" 
 			return $this->payments->return_response($status, $response_types['E'], 'gateway_response', $details);
@@ -271,17 +300,7 @@ class Bluepay {
 		
 		// Setup Response
 		$status = ($is_success) ? 'success': 'failure';
-		$response = $this->payments->payment_type . $response_types[$data['STATUS']];
-		
-		// Setup Final Response 		
-		$details->reason = $data['MESSAGE'];
-		$details->status = $data['STATUS']; // The request can be successful, yet have the card be declined
-		
-		// Setup additional properties if successful
-		if($is_success && isset($data['TRANS_ID']))
-		{
-			$details->identifier = $data['TRANS_ID'];
-		}
+		$response = $response_types[$gateway_response['STATUS']];
 		
 		// Send it back!	
 		return $this->payments->return_response($status, $response, 'gateway_response', $details);
