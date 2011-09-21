@@ -1,3 +1,5 @@
+[![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=calvinfroedge&url=http://github.com/calvinfroedge/codeigniter-payments&title=Codeigniter Payments&language=en_GB&tags=github&category=software) 
+
 # Codeigniter Payments
 
 ## Installing
@@ -12,7 +14,12 @@ $this->load->spark('codeigniter-payments/[version #]/');
 
 There are config files for each gateway in the /config folder of the spark.  You need to enter your own API usernames and passwords (the ones in there are mine, used only for testing purposes) in the config of each gateway you would like to use.
 
-IMPORTANT: If you want to test locally (and you should), you need to set "force_secure_connection" to FALSE in config/payments.php
+## IMPORTANT!
+
+1.  If you want to test locally (and you should), you need to set "force_secure_connection" to FALSE in config/payments.php
+
+2.  By default, test api endpoints will be used.  To enable production endpoints, change the mode in /config/payments.php from 'test' to 'production'.  Note that if you are a Psigate customer, you must obtain your production endpoint from Psigate support.
+
 
 ## Gateway Support
 
@@ -95,3 +102,13 @@ Gateway responses will usually have a full response from the gateway, and on fai
 ```
 
 You can access this like $response->details->reason.  You may want to save the full gateway response (it's an array) in a database table, you can access it at $response->details->gateway_response
+
+## LICENSE
+
+Copyright (c) 2011 Calvin Froedge
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

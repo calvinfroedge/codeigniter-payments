@@ -47,8 +47,8 @@ class Amazon_SimplePay
 	public function __construct($payments)
 	{
 		$this->payments = $payments;
-		$this->_api_endpoint = $this->payments->ci->config->item('api_endpoint');	
-		$this->_fps_endpoint = $this->payments->ci->config->item('fps_endpoint');
+		$this->_api_endpoint = $this->payments->ci->config->item('api_endpoint_'.$this->payments->mode);	
+		$this->_fps_endpoint = $this->payments->ci->config->item('fps_endpoint_'.$this->payments->mode);
 		$this->_fps_version = $this->payments->ci->config->item('fps_version');
 		$this->_fps_endpoint_parsed = parse_url($this->_fps_endpoint);		
 		$this->_api_settings = array(
