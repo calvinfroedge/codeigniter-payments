@@ -186,18 +186,6 @@ class Chase_PaymentTech
 		$this->_request = $this->_build_request($params, 'FC');			
 		return $this->_handle_query();
 	}
-
-	/**
-	 * Get the details for a particular transaction
-	 * @param	array	An array of payment params, sent from your controller / library
-	 * @return	object	The response from the payment gateway
-	*/	
-	public function chase_paymenttech_get_transaction_details($params)
-	{
-		$this->_api_method = 'getTransactionDetailsRequest';
-		$this->_request = $this->_build_request($params);			
-		return $this->_handle_query();
-	}	
 	
 	/**
 	 * Refund a transaction
