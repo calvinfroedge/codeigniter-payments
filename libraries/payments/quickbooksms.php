@@ -41,8 +41,8 @@ class QuickBooksMS
 		$this->_default_params = $this->payments->ci->config->item('method_params');
 		$this->_api_endpoint = $this->payments->ci->config->item('api_endpoint'.'_'.$this->payments->mode);	
 		$this->_api_settings = array(
-			'login'			=> $this->payments->ci->config->item('api_application_login'),
-			'connection_ticket'	=> $this->payments->ci->config->item('api_connection_ticket'),
+			'login'			=> (isset($payments->gateway_credentials)) ? $payments->gateway_credentials['api_application_login'] : $this->payments->ci->config->item('api_application_login'),
+			'connection_ticket'	=> (isset($payments->gateway_credentials)) ? $payments->gateway_credentials['api_connection_ticket'] : $this->payments->ci->config->item('api_connection_ticket'),
 			'xml_version'	=> '1.0',
 			'encoding'		=> 'utf-8',
 			'xml_extra'		=> $this->payments->ci->config->item('api_qbxml')

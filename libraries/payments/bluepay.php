@@ -61,9 +61,9 @@ class Bluepay {
 		$this->_api_version = $this->payments->ci->config->item('api_version');	
 		$this->_payment_to_gateway_key_map = $this->payments->ci->config->item('payment_to_gateway_key_map');		
 		$this->_api_settings = (object) array(
-			'login'			=> $this->payments->ci->config->item('api_account_id'),
-			'user_id'		=> $this->payments->ci->config->item('api_user_id'),
-			'secret_key'	=> $this->payments->ci->config->item('api_secret_key'),
+			'login'			=> (isset($payments->gateway_credentials)) ? $payments->gateway_credentials['api_account_id'] : $this->payments->ci->config->item('api_account_id'),
+			'user_id'		=> (isset($payments->gateway_credentials)) ? $payments->gateway_credentials['api_user_id'] : $this->payments->ci->config->item('api_user_id'),
+			'secret_key'	=> (isset($payments->gateway_credentials)) ? $payments->gateway_credentials['api_secret_key'] : $this->payments->ci->config->item('api_secret_key'),
 			'email_customer'=> $this->payments->ci->config->item('email_customer'),
 			'test_mode'		=> $this->payments->ci->config->item('test_mode')
 		);

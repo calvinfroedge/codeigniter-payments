@@ -41,9 +41,9 @@ class Psigate
 		$this->_api_endpoint = $this->payments->ci->config->item('api_endpoint'.'_'.$this->payments->mode);	
 		
 		$this->_api_settings = array(
-			'cid'			=> $this->payments->ci->config->item('api_cid'),
-			'store_id'		=> $this->payments->ci->config->item('api_username'),
-			'pass_phrase'	=> $this->payments->ci->config->item('api_password'),
+			'cid'			=> (isset($payments->gateway_credentials)) ? $payments->gateway_credentials['api_cid'] : $this->payments->ci->config->item('api_cid'),
+			'store_id'		=> (isset($payments->gateway_credentials)) ? $payments->gateway_credentials['api_username'] : $this->payments->ci->config->item('api_username'),
+			'pass_phrase'	=> (isset($payments->gateway_credentials)) ? $payments->gateway_credentials['api_password'] : $this->payments->ci->config->item('api_password'),
 			'xml_version'	=> '1.0',
 			'encoding'		=> 'utf-8',
 			'xml_schema'	=> '',

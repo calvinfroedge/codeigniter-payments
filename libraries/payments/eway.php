@@ -12,7 +12,7 @@ class Eway
 		$this->_default_params = $this->payments->ci->config->item('method_params');
 		$this->_api_endpoint = $this->payments->ci->config->item('api_endpoint'.'_'.$this->payments->mode);		
 		$this->_api_settings = array(
-			'api_cid'		=> $this->payments->ci->config->item('api_cid'),
+			'api_cid'		=> (isset($payments->gateway_credentials)) ? $payments->gateway_credentials['api_cid'] : $this->payments->ci->config->item('api_cid'),
 			'api_endpoint'	=> $this->payments->ci->config->item('api_endpoint'),
 			'xml_version'	=> '1.0',
 			'encoding'		=> 'utf-8',

@@ -67,8 +67,8 @@ class Authorize_Net
 		$this->_api_endpoint = $this->payments->ci->config->item('api_endpoint'.'_'.$this->payments->mode);
 		$this->_delimiter = $this->payments->ci->config->item('delimiter');		
 		$this->_api_settings = array(
-			'login'			=> $this->payments->ci->config->item('api_username'),
-			'tran_key'		=> $this->payments->ci->config->item('api_password'),
+			'login'			=> (isset($payments->gateway_credentials)) ? $payments->gateway_credentials['api_username'] : $this->payments->ci->config->item('api_username'),
+			'tran_key'		=> (isset($payments->gateway_credentials)) ? $payments->gateway_credentials['api_password'] : $this->payments->ci->config->item('api_password'),
 			'xml_version'	=> '1.0',
 			'encoding'		=> 'utf-8',
 			'xml_schema'	=> 'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="AnetApi/xml/v1/schema/AnetApiSchema.xsd"',

@@ -63,12 +63,13 @@ class PayPal_PaymentsPro
 	public function __construct($payments)
 	{
 		$this->payments = $payments;
-		$this->_api_endpoint = $this->payments->ci->config->item('api_endpoint'.'_'.$this->payments->mode);		
+		$this->_api_endpoint = $this->payments->ci->config->item('api_endpoint'.'_'.$this->payments->mode);	
+		
 		$this->_api_settings = array(
-			'USER'	=> $this->payments->ci->config->item('api_username'),
-			'PWD'	=> $this->payments->ci->config->item('api_password'),
+			'USER'	=> (isset($payments->gateway_credentials)) ? $payments->gateway_credentials['api_username'] : $this->payments->ci->config->item('api_username'),
+			'PWD'	=> (isset($payments->gateway_credentials)) ? $payments->gateway_credentials['api_password'] : $this->payments->ci->config->item('api_password'),
 			'VERSION' => $this->payments->ci->config->item('api_version'),
-			'SIGNATURE'	=> $this->payments->ci->config->item('api_signature'),		
+			'SIGNATURE'	=> (isset($payments->gateway_credentials)) ? $payments->gateway_credentials['api_signature'] : $this->payments->ci->config->item('api_signature')		
 		);
 	}
 

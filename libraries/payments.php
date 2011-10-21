@@ -59,7 +59,12 @@ class Payments
 	/**
 	 * The default params for the method
 	*/	
-	public $required_params;	
+	public $required_params;
+	
+	/**
+	 * Custom Gateway Credentials
+	*/
+	public $gateway_credentials;	
 		
 	/**
 	 * The constructor function.
@@ -136,7 +141,14 @@ class Payments
 		else
 		{
 			$this->ci->load->config('payments/'.$payment_module);
-			$this->payment_type = $payment_type;	
+			$this->payment_type = $payment_type;
+			
+			if(isset($params['gateway_credentials']))
+			{
+				$this->gateway_credentials = $params['gateway_credentials'];
+				unset($params['gateway_credentials']);
+			}
+				
 			$valid_inputs = $this->_check_inputs($payment_module, $params);
 			if($valid_inputs === TRUE)
 			{

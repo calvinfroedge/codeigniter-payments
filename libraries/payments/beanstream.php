@@ -65,9 +65,9 @@ class Beanstream
 		$this->payments = $payments;
 		$this->_api_endpoint = $this->payments->ci->config->item('api_endpoint');		
 		$this->_api_settings = array(
-			'merchant_id'	=> $this->payments->ci->config->item('api_mid'),
-			'username'		=> $this->payments->ci->config->item('api_username'),
-			'password'		=> $this->payments->ci->config->item('api_password'),
+			'merchant_id'	=> (isset($payments->gateway_credentials)) ? $payments->gateway_credentials['api_mid'] : $this->payments->ci->config->item('api_mid'),
+			'username'		=> (isset($payments->gateway_credentials)) ? $payments->gateway_credentials['api_username'] : $this->payments->ci->config->item('api_username'),
+			'password'		=> (isset($payments->gateway_credentials)) ? $payments->gateway_credentials['password'] : $this->payments->ci->config->item('api_password'),
 			'requestType'	=> 'BACKEND'
 		);
 	}
