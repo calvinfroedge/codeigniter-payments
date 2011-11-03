@@ -2,6 +2,10 @@
 
 # Codeigniter Payments
 
+## NOTICE - USING CODEIGNITER-PAYMENTS ALONE DOES NOT MAKE YOU PCI COMPLIANT
+
+It is highly recommended that you attempt to architect your application to achieve some level of PCI compliance.  Without this, the applications you create can be vulnerable to fines for PCI compliance violations.  Using codeigniter-payments does not circumvent the need for you to do this.  You can check out the PCI compliance self assessment form here: https://www.pcisecuritystandards.org/merchants/self_assessment_form.php
+
 ## Installing
 
 Available via Sparks.  For info about how to install sparks, go here: http://getsparks.org/install
