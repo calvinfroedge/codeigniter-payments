@@ -31,6 +31,7 @@ $config['supported_methods'] = array(
 	'oneoff_payment', //A one time payment
 	'reference_payment', //A one off payment that references a previous one off payment to use it's card data
 	'void_payment',  //Void a payment that has not yet been settled / finalized
+	'void_refund', //Reverse a refund
 	'change_transaction_status', //Change a particular transaction's status
 	'refund_payment', //Refund a payment
 	'recurring_payment',  //Create a recurring payment profile
@@ -70,6 +71,9 @@ $config['response_codes'] = array (
 	'void_payment_success'							=>	'100',
 	'void_payment_local_failure'					=>	'000',
 	'void_payment_gateway_failure'					=>	'011',
+	'void_refund_success'							=>	'100',
+	'void_refund_local_failure'						=>	'000',
+	'void_refund_gateway_failure'					=>	'011',	
 	'get_transaction_details_success'				=>	'100',
 	'get_transaction_details_local_failure'			=>	'000',
 	'get_transaction_details_gateway_failure'		=>	'011',

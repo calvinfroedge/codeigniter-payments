@@ -577,8 +577,10 @@ class Payments
     * @param  string  A specific content type to define for cURL request
 	* @return	object	response object
 	*/	
-	public function gateway_request($query_string, $payload = NULL, $content_type = NULL)
+	public function gateway_request($query_string, $payload = NULL, $content_type = NULL, $custom_headers = NULL)
 	{
+		$headers = (is_null($custom_headers)) ? array() : $custom_headers;
+		
 		$this->ci->curl->create($query_string);	
 		$this->ci->curl->option('FAILONERROR', FALSE);
 
@@ -599,7 +601,7 @@ class Payments
 			if(is_null($content_type))
 			{
 				$xml = TRUE;
-				$this->ci->curl->option(CURLOPT_HTTPHEADER, array("Content-Type: text/xml"));
+				$headers[] = "Content-Type: text/xml";
 			}
 			else
 			{
@@ -608,10 +610,12 @@ class Payments
 					$xml = TRUE;
 				}
 				
-				$this->ci->curl->option(CURLOPT_HTTPHEADER, array("Content-Type: ".$content_type));
+				$headers[] = "Content-Type: $content_type";
 			}
 			
+			$this->ci->curl->option(CURLOPT_HTTPHEADER, $headers);
 			$this->ci->curl->option(CURLOPT_POSTFIELDS, $payload);
+			
 			$request = $this->ci->curl->execute();
 			if(isset($xml) && $xml === TRUE)
 			{

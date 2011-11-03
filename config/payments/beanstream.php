@@ -1,11 +1,13 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
-$config['api_mid'] = "237380000";
-$config['api_username'] = "testuser";
-$config['api_password'] = "testpass11";
+$config['api_mid'] = "";
+$config['api_username'] = "";
+$config['api_password'] = "";
 $config['api_endpoint'] = "https://www.beanstream.com/scripts/process_transaction.asp?";
 $config['api_recurring_endpoint'] = "https://www.beanstream.com/scripts/recurring_billing.asp?";
 $config['api_recurring_billing_passcode'] = "72b7bdbCaac44AAa9b94ec9ca790E6AB";
+$config['validation_username'] = "";
+$config['validation_password'] = "";
 
 //Recurring billing settings.  Important!
 $config['delay_charge'] = '1'; //set this to 0 if you want to charge customers as soon as they elect to begin recurring billing, or 1 if you want to wait until their profile start date to bill them.
@@ -63,7 +65,21 @@ $config['required_params'] = array(
 	'void_payment'	=>	array(
 		'identifier',
 		'amt'
-	),	
+	),
+	'void_refund' => array(
+		'identifier',
+		'amt',
+		'first_name',
+		'last_name',
+		'cc_number',
+		'cc_exp',
+		'email',
+		'phone',
+		'street',
+		'city',
+		'state',
+		'country'
+	),
 	'refund_payment' =>	array(
 		'identifier'
 	),		

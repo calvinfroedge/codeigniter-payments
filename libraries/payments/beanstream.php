@@ -46,7 +46,12 @@ class Beanstream
 	 * An array for storing all settings
 	*/	
 	private $_settings = array();
-
+	
+	/**
+	 * Validation
+	*/
+	private $_validation;
+	
 	/**
 	 * An array for storing all request data
 	*/	
@@ -70,6 +75,11 @@ class Beanstream
 			'password'		=> (isset($payments->gateway_credentials)) ? $payments->gateway_credentials['password'] : $this->payments->ci->config->item('api_password'),
 			'requestType'	=> 'BACKEND'
 		);
+		
+		$this->_validation = array(
+			'username' => $this->payments->ci->config->item('validation_username'),
+			'password' => $this->payments->ci->config->item('validation_password')
+		);	
 	}
 
 	private function _recurring_settings()
@@ -169,6 +179,8 @@ class Beanstream
 	*/		
 	private function _build_common_fields($params)
 	{
+		$request = array();
+		
 		if(isset($this->_api_method['trnType']))
 		{
 			$method = $this->_api_method['trnType'];
@@ -196,7 +208,7 @@ class Beanstream
 
 		if(isset($params['identifier']))
 		{
-			if($method === 'PAC' OR $method === 'VP' OR $method === 'R')
+			if($method === 'PAC' OR $method === 'VP' OR $method === 'VR' OR $method === 'R')
 			{
 				$request['adjId'] = $params['identifier'];
 			}
@@ -296,6 +308,13 @@ class Beanstream
 		{
 			$request['customerIP'] = $params['ip_address'];
 		}	
+
+
+		if(isset($this->_validation['username'], $this->_validation['password']))
+		{
+			$request['username'] = $this->payments->ci->config->item('validation_username');
+			$request['password'] = $this->payments->ci->config->item('validation_password');
+		}				
 		
 		return $request;
 	}	
@@ -334,7 +353,12 @@ class Beanstream
 	public function beanstream_capture_payment($params)
 	{
 		$this->_api_method = array('trnType' => 'PAC');
-		$this->_build_request($params);		
+		$this->_build_request($params);	
+		if(isset($this->_validation['username'], $this->_validation['password']))
+		{
+			$this->_request['username'] = $this->payments->ci->config->item('validation_username');
+			$this->_request['password'] = $this->payments->ci->config->item('validation_password');
+		}	
 		return $this->_handle_query();
 	}
 
@@ -342,13 +366,29 @@ class Beanstream
 	 * Void a oneoff payment
 	 * @param	array	An array of params, sent from your controller / library
 	 * @return	object	The response from the payment gateway
+	 *
+	 * Note: This can only be issued the same day as the original transaction
 	*/	
 	public function beanstream_void_payment($params)
 	{
-		$this->_api_method = array('trnType' => 'V');
-		$this->_build_request($params);		
+		$this->_api_method = array('trnType' => 'VP');
+		$this->_build_request($params);					
 		return $this->_handle_query();
 	}	
+	
+	/**
+	 * Void a return payment
+	 * @param	array	An array of params, sent from your controller / library
+	 * @return	object	The response from the payment gateway
+	 *
+	 * Note: This can only be issued the same day as the original transaction
+	*/	
+	public function beanstream_void_refund($params)
+	{
+		$this->_api_method = array('trnType' => 'VR');
+		$this->_build_request($params);				
+		return $this->_handle_query();
+	}
 
 	/**
 	 * Refund a transaction
@@ -358,7 +398,7 @@ class Beanstream
 	public function beanstream_refund_payment($params)
 	{
 		$this->_api_method = array('trnType' => 'R');
-		$this->_build_request($params);		
+		$this->_build_request($params);				
 		return $this->_handle_query();	
 	}		
 
