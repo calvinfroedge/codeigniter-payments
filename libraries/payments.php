@@ -615,8 +615,9 @@ class Payments
 			
 			$this->ci->curl->option(CURLOPT_HTTPHEADER, $headers);
 			$this->ci->curl->option(CURLOPT_POSTFIELDS, $payload);
-			
+
 			$request = $this->ci->curl->execute();
+			
 			if(isset($xml) && $xml === TRUE)
 			{
 				return $this->parse_xml($request);

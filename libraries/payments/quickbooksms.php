@@ -234,7 +234,7 @@ class QuickBooksMS
 	{	
 		$this->_http_query = $this->_request;
 		
-		$response_object = $this->payments->gateway_request($this->_api_endpoint, $this->_http_query, "Content-Type: application/x-qbmsxml");	
+		$response_object = $this->payments->gateway_request($this->_api_endpoint, $this->_http_query, "application/x-qbmsxml");	
 		$response = $this->_parse_response($response_object);
 		
 		return $response;

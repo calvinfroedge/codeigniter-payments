@@ -23,7 +23,7 @@ $config['oneoff_payment'] = array(
 			'currency_code'		=>	'', //currency code to use for the transaction.
 			'item_amt'			=>	'', //Amount for just the item being purchased.
 			'insurance_amt'		=>	'', //Amount for just insurance.
-			'shipping_disc_amt'	=>	'', //Amount for just shipping.
+			'shipping_disc_amt'	=>	'', 
 			'handling_amt'		=>	'', //Amount for just handling.
 			'tax_amt'			=>	'', //Amount for just tax.
 			'desc'				=>	'', //Description for the transaction
@@ -41,7 +41,7 @@ $config['oneoff_payment'] = array(
 			'ship_to_postal_code'=>	'',
 			'ship_to_country'	=>	'',	
 			'ship_to_company'	=>	'',
-			'shipping_amt'		=>	'',
+			'shipping_amt'		=>	'', //Amount for just shipping.
 			'duty_amt'			=>	'',
 			'tax_exempt'		=>	''
 );

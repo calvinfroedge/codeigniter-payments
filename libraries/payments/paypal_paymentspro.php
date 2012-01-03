@@ -8,7 +8,7 @@ class PayPal_PaymentsPro
 	public $payments;
 	
 	/**
-	 * The use who wil make the call to the paypal gateway
+	 * The user who wil make the call to the paypal gateway
 	*/
 	private $_api_user;
 
@@ -26,11 +26,6 @@ class PayPal_PaymentsPro
 	 * The API signature to use
 	*/	
 	private $_api_signature;
-
-	/**
-	 * A description to use for the transaction
-	*/
-	private $_transaction_description;
 
 	/**
 	 * The API method currently being utilized
