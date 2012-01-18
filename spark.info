@@ -16,5 +16,4 @@ compatibility: 2.0.0
 #  Dependencies should be in NAME: VERSION format, where NAME is an existing
 #  spark name, and VERSION is a version in x.x.x format. 
 #dependencies:
-curl: 1.2.0
-#  spark-2: 1.0.0
+curl: 1.2.1
