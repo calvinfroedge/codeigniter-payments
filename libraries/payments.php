@@ -76,7 +76,7 @@ class Payments
 		$this->_response_codes = $this->ci->config->item('response_codes');
 		$this->ci->lang->load('response_messages');	
 		$this->ci->lang->load('response_details');
-		$this->ci->load->spark('curl/1.2.0');
+		$this->ci->load->spark('curl/1.2.1');
 		$this->_connection_is_secure();
 	}
 
