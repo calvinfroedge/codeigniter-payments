@@ -2,6 +2,23 @@
 
 # Codeigniter Payments
 
+CodeIgniter Payments is an abstraction library for supporting multiple payments providers.  The project began in February 2011 as a CodeIgniter library and has since evolved into a framework agnostic payments engine with support for CodeIgniter.
+
+At time of writing, the following gateways are supported, but it's very possible more gateways have been added since:
+
+- PayPal Payments Pro
+- Authorize.net (AIM)
+- Psigate
+- Beanstream
+- QuickBooks Merchant Services
+- Eway (Australia)
+- Amazon SimplePay
+- Stripe
+- Google Checkout
+- GoCardless
+- Braintree Payments
+- BluePay
+
 ## NOTICE - USING CODEIGNITER-PAYMENTS ALONE DOES NOT MAKE YOU PCI COMPLIANT
 
 It is highly recommended that you attempt to architect your application to achieve some level of PCI compliance.  Without this, the applications you create can be vulnerable to fines for PCI compliance violations.  Using codeigniter-payments does not circumvent the need for you to do this.  You can check out the PCI compliance self assessment form here: https://www.pcisecuritystandards.org/merchants/self_assessment_form.php
@@ -16,61 +33,45 @@ You can then load the spark with this:
 $this->load->spark('codeigniter-payments/[version #]/');
 ```
 
-There are config files for each gateway in the /config folder of the spark.  You need to enter your own API usernames and passwords (the ones in there are mine, used only for testing purposes) in the config of each gateway you would like to use.
-
 ## IMPORTANT!
 
 1.  If you want to test locally (and you should), you need to set "force_secure_connection" to FALSE in config/payments.php
 
 2.  By default, test api endpoints will be used.  To enable production endpoints, change the mode in /config/payments.php from 'test' to 'production'.  Note that if you are a Psigate customer, you must obtain your production endpoint from Psigate support.
 
+3.  When you load gateways, th
 
 ## Gateway Support
 
 The following gateways are supported:
 
-- PayPal Payments Pro
-- Authorize.net (AIM)
-- Psigate
-- Beanstream
-- QuickBooks Merchant Services
-- Eway (Australia)
-- Amazon SimplePay
+## Method Support List
 
-## Methods Supported (note, not all methods are supported by all gateways.  For a full method support list visit http://payments.calvinfroedge.com/gateways ):
+This is constantly changing.  Please visit http://payments.calvinfroedge.com or run php doxgen.php in the src/php-payments/documentation folder to see the latest documentation.
 
-- oneoff_payment: Makes a one time charge
-- reference_payment: Make a payment based on a previous transaction.  Mimics a card vault.  Currently only implemented in PayPal Payments Pro.
-- authorize_payment: Authorizes a charge, which is essentially a hold.  This requires later capturing the funds you authorized (most gateways require you do this the same business day).
-- capture_payment: Finalize an authorization, actually charges the customer.
-- void_payment: Cancel a payment that has not been settled (transactions get settled at the end of the business day).
-- refund_payment: Refund (or credit) a customer for a settled transaction.
-- get_transaction_details: Get details from a particular transaction.
-- change_transaction_status: Changes a transaction's status, ie to Accept or Decline.  Only available with PayPal.
-- search_transactions: Query transactions by parameters you define.  Only available with PayPal.
-- recurring_payment: Start a new recurring profile.
-- get_recurring_profile: Get info about a profile.
-- activate_recurring_profile: Activate a recurring profile that has been suspended.
-- cancel_recurring_profile: Cancel a recurring profile.
-- suspend_recurring_profile: Hold the recurring billing, but don't cancel.
-- recurring_bill_outstanding: Charge outstanding payments to a customer.
-- update_recurring_profile: Update amounts, names, addresses, etc.
+## Configuration
 
-If you use a method that is not supported, the gateway will return a local failure.
+To create a config file, copy a config file from src/php-payments/config/drivers for a driver you want to use into the spark config folder.  The name of the file should stay the same.  You will, however, need to make each param inside the config file reside inside a an array matching the gateway name.  For example:
 
-## Parameters Available
+```php
+$config = array(
+	'authorize_net' => array(
+		'config1' => 'This is the config param'
+	)
+);
+```
 
-You can see the params available for each method in /config/payment_types/method_name
-
-An important parameter, that you will use often, is 'identifier.'  'Identifier' is used to uniquely identify recurring transactions and payments.  After each payment (ie authorization, capture, recurring billing), an identifier will be returned in the response which you can use to make later calls with that affect that payment.
+If you don't pass config in an array, and don't create a config file, the config in src/php-payments/config/drivers will be used - which is only for testing and is probably not what you want.
 
 ## Making Requests
 
 Examples for all gateways are available in /examples.  A request is formatted thusly:
 
 ```php
-$this->payments->payment_action('gateway_name', $params);
+$this->payments->payment_action('gateway_name', $params, $config);
 ```
+
+Note that the third array for config is optional. 
 
 ## Responses
 
@@ -107,9 +108,13 @@ Gateway responses will usually have a full response from the gateway, and on fai
 
 You can access this like $response->details->reason.  You may want to save the full gateway response (it's an array) in a database table, you can access it at $response->details->gateway_response
 
+## Adding Drivers, More Documentation
+
+More information on adding your own drivers (including a video walkthrough) and documentation are available online at http://payments.calvinfroedge.com
+
 ## LICENSE
 
-Copyright (c) 2011 Calvin Froedge
+Copyright (c) 2011-2012 Calvin Froedge
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 

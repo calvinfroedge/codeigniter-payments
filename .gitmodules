@@ -1,0 +1,3 @@
+[submodule "src/php-payments"]
+	path = src/php-payments
+	url = git@github.com:calvinfroedge/PHP-Payments.git
