@@ -39,7 +39,7 @@ $this->load->spark('codeigniter-payments/[version #]/');
 
 2.  By default, test api endpoints will be used.  To enable production endpoints, change the mode in /config/payments.php from 'test' to 'production'.  Note that if you are a Psigate customer, you must obtain your production endpoint from Psigate support.
 
-3.  When you load gateways, th
+3.  When you load gateways, the config can either be passed in the constructor or loaded from a config file.
 
 ## Gateway Support
 
