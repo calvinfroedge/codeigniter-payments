@@ -64,8 +64,8 @@ $config = array(
 If you don't pass config in an array, and don't create a config file, the config in src/php-payments/config/drivers will be used - which is only for testing and is probably not what you want.
 
 ## Making Requests
-
-Examples for all gateways are available in /examples.  A request is formatted thusly:
+ 
+A request is formatted thusly:
 
 ```php
 $this->payments->payment_action('gateway_name', $params, $config);
