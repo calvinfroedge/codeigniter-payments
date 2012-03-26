@@ -1,4 +1,4 @@
-[![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=calvinfroedge&url=http://github.com/calvinfroedge/codeigniter-payments&title=Codeigniter Payments&language=en_GB&tags=github&category=software) 
+## This code has taken tons of work.  Donations highly appreciated.  [Make a Donation](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=TJMWX5E9GXS7S "Make a Donation to Codeigniter Payments")
 
 # Codeigniter Payments
 
