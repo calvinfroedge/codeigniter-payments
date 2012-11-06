@@ -51,7 +51,7 @@ This is constantly changing.  Please visit http://payments.calvinfroedge.com or 
 
 ## Configuration
 
-To create a config file, copy a config file from src/php-payments/config/drivers for a driver you want to use into the spark config folder.  The name of the file should stay the same.  You will, however, need to make each param inside the config file reside inside a an array matching the gateway name.  For example:
+To create a config file, copy a config file from src/php-payments/config/drivers for a driver you want to use into the spark config/{driver_name} folder.  The name of the file should stay the same.  You will, however, need to make each param inside the config file reside inside a an array matching the gateway name.  For example:
 
 ```php
 $config = array(
