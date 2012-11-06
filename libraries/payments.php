@@ -57,9 +57,9 @@ class Payments
 		$gateway = $params[0];
 		$args = $params[1];
 
-		if(file_exists(dirname(__DIR__)."/config/drivers/$gateway"))
+		if(file_exists(dirname(__DIR__)."/config/drivers/{$gateway}.php"))
 		{
-			$this->ci->load->config("drivers/$gateway");
+			$this->ci->load->config("drivers/{$gateway}.php");
 			$config = $this->ci->config->item($gateway);
 		}
 		else
