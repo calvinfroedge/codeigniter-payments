@@ -1,4 +1,4 @@
-## This code has taken tons of work.  Donations highly appreciated.  [Make a Donation](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=TJMWX5E9GXS7S "Make a Donation to Codeigniter Payments")
+# THIS CODE IS NO LONGER MAINTAINED. IF YOU WOULD LIKE TO BECOME THE NEW MAINTAINER FOR THIS PROJECT, PLEASE MESSAGE ME. IN THE MEAN TIME, YOU MIGHT CHECK OUT [OMNIPAY](https://github.com/thephpleague/omnipay).
 
 # Codeigniter Payments
 
